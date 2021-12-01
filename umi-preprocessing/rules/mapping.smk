@@ -34,7 +34,7 @@ rule GroupReads:
     log:
         "logs/fgbio/group_reads/{sample}.log"
     wrapper:
-        "0.64.0/bio/fgbio/groupreadsbyumi"
+        "0.80.2/bio/fgbio/groupreadsbyumi"
 
 
 rule ConsensusReads:
@@ -47,7 +47,7 @@ rule ConsensusReads:
     log:
         "logs/fgbio/consensus_reads/{sample}.log"
     wrapper:
-        "0.64.0/bio/fgbio/callmolecularconsensusreads"
+        "0.80.2/bio/fgbio/callmolecularconsensusreads"
 
 
 rule map_reads2:
@@ -89,7 +89,7 @@ rule FilterConsensusReads:
         "logs/fgbio/filterconsensusreads/{sample}.log"
     threads: 1
     wrapper:
-        "0.64.0/bio/fgbio/filterconsensusreads"
+        "0.80.2/bio/fgbio/filterconsensusreads"
 
 
 rule realignertargetcreator:

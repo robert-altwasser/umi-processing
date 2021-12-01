@@ -27,7 +27,7 @@ rule fastqc:
         "logs/fastqc/{sample}.{read}.log"
     threads: 1
     wrapper:
-        "0.64.0/bio/fastqc"
+        "0.80.2/bio/fastqc"
 
 
 rule samtools_stats:
@@ -41,7 +41,7 @@ rule samtools_stats:
     log:
         "logs/samtools-stats/{sample}.{type}.log"
     wrapper:
-        "0.64.0/bio/samtools/stats"
+        "0.80.2/bio/samtools/stats"
 
 
 rule picard_collect_hs_metrics:
@@ -61,7 +61,7 @@ rule picard_collect_hs_metrics:
     log:
         "logs/picard_collect_hs_metrics/{sample}.{type}.log"
     wrapper:
-        "0.64.0/bio/picard/collecthsmetrics"
+        "0.80.2/bio/picard/collecthsmetrics"
 
 
 rule multiqc_alignments:
@@ -72,7 +72,7 @@ rule multiqc_alignments:
     log:
         "logs/multiqc.log"
     wrapper:
-         "0.64.0/bio/multiqc"
+         "0.80.2/bio/multiqc"
 
 
 rule multiqc_reads:
@@ -83,4 +83,4 @@ rule multiqc_reads:
     log:
         "logs/multiqc.log"
     wrapper:
-         "0.64.0/bio/multiqc"
+         "0.80.2/bio/multiqc"

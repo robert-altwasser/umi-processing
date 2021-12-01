@@ -46,7 +46,7 @@ rule bcf_to_vcf:
     params:
         "-Oz"  # optional parameters for bcftools view (except -o)
     wrapper:
-        "0.57.0/bio/bcftools/view"
+        "0.80.2/bio/bcftools/view"
 
 rule bcftools_index:
     input:
@@ -56,7 +56,7 @@ rule bcftools_index:
     params:
         extra=""  # optional parameters for bcftools index
     wrapper:
-        "0.75.0-13-g0997adf/bio/bcftools/index"
+        "0.80.2/bio/bcftools/index"
 
 rule norm_vcf:
     input:
@@ -67,7 +67,7 @@ rule norm_vcf:
     params:
         ''.join(['-f ', config['refgenome']])  # optional parameters for bcftools norm (except -o)
     wrapper:
-        "0.75.0-13-g0997adf/bio/bcftools/norm"
+        "0.80.2/bio/bcftools/norm"
 
 
 rule vcf_to_table:

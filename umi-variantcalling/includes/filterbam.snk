@@ -22,7 +22,6 @@ rule mutation_bed:
             bed_df.to_csv(f"{dir_path}/{output}", index=False, sep='\t', header=False)
             #print('MUTFILE', anno_df, '\n', 'BED', bed_df)
 
-
 rule samtools_view:
     input:
         lambda wildcards: input_bam[wildcards.sample], "filterbam/{sample}.bed"
@@ -31,7 +30,7 @@ rule samtools_view:
     params:
         "-bhL filterbam/{sample}.bed" # optional params string
     wrapper:
-        "0.57.0/bio/samtools/view"
+        "0.80.2/bio/samtools/view"
 
 
 rule samtools_index:
@@ -42,7 +41,7 @@ rule samtools_index:
     params:
         "" # optional params string
     wrapper:
-        "0.57.0/bio/samtools/index"
+        "0.80.2/bio/samtools/index"
     
 
 rule mpilup:
@@ -57,7 +56,7 @@ rule mpilup:
     params:
         extra="".join([" -q ", str(config['mpileup']['MAPQ']), " -Q ", str(config['mpileup']['Q'])]),  # optional
     wrapper:
-        "0.57.0/bio/samtools/mpileup"
+        "0.80.2/bio/samtools/mpileup"
 
 
 rule filter_pileup:
