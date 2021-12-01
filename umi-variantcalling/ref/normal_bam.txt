@@ -1,0 +1,16 @@
+/fast/users/altwassr_c/scratch/P1156/preprocessing/mapped/CT23.realigned.bam
+/fast/users/altwassr_c/scratch/P1156/preprocessing/mapped/CT24_30d.realigned.bam
+/fast/users/altwassr_c/scratch/P1156/preprocessing/mapped/CT25.realigned.bam
+/fast/users/altwassr_c/scratch/P1156/preprocessing/mapped/CT26.realigned.bam
+/fast/users/altwassr_c/scratch/P1156/preprocessing/mapped/CT60.realigned.bam
+/fast/users/altwassr_c/scratch/P1156/preprocessing/mapped/CT62.realigned.bam
+/fast/users/altwassr_c/scratch/P1156/preprocessing/mapped/CT64.realigned.bam
+/fast/users/altwassr_c/scratch/P1156/preprocessing/mapped/CT66.realigned.bam
+/fast/users/altwassr_c/scratch/P1156/preprocessing/mapped/CT68.realigned.bam
+/fast/users/altwassr_c/scratch/P1156/preprocessing/mapped/KW_WB.realigned.bam
+/fast/users/altwassr_c/scratch/P1156/preprocessing/mapped/L_GR.realigned.bam
+/fast/users/altwassr_c/scratch/P1156/preprocessing/mapped/MM4_14d.realigned.bam
+/fast/users/altwassr_c/scratch/P1156/preprocessing/mapped/MM4_53d.realigned.bam
+/fast/users/altwassr_c/scratch/P1156/preprocessing/mapped/MM5_19d.realigned.bam
+/fast/users/altwassr_c/scratch/P1156/preprocessing/mapped/MM5_Stem.realigned.bam
+/fast/users/altwassr_c/scratch/P1156/preprocessing/mapped/MM7.realigned.bam

@@ -1,0 +1,12 @@
+name: vardict-pipeline
+channels:
+  - conda-forge
+  - bioconda
+dependencies:
+  - snakemake
+  - mamba
+  - r-base=3.6.3
+  - r-stringr
+  - mawk
+  - drmaa
+  - pysam

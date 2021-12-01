@@ -1,0 +1,12 @@
+name: umipreprocessing
+channels:
+  - conda-forge
+  - default
+  - bioconda
+  - defaults
+dependencies:
+  - bwa
+  - gatk=3.8
+  - picard
+  - pysam
+  - snakemake=5.30.1

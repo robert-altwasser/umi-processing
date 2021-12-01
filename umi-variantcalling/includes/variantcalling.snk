@@ -1,0 +1,105 @@
+# rule vardict_single_mode:
+#     input:
+#         reference=config['refgenome'],
+#         regions=config["bedfile"],
+#         bam=lambda wildcards: input_bam[wildcards.sample],
+#     output:
+#         vcf="vardict/{sample}.vcf"
+#     params:
+#         extra="",
+#         bed_columns="-c 1 -S 2 -E 3 -g 4",  # Optional, default is -c 1 -S 2 -E 3 -g 4
+#         af_th="0.001",  # Optional, default is 0.01
+#     threads: 1
+#     log:
+#         "logs/vardict/vardict_{sample}.log",
+#     wrapper:
+#         "0.78.0/bio/vardict"
+
+
+
+rule vardict:
+    input:
+        ref=config['refgenome'],
+        # you can have a list of samples here
+        samples=lambda wildcards: input_bam[wildcards.sample],
+        # optional BED file specifying chromosomal regions on which freebayes
+        # should run, e.g. all regions that show coverage
+        regions=config["bedfile"],
+    output:
+        "vardict/{sample}.vcf"
+    params:
+        extra="-c 1 -S 2 -E 3 -g 4",
+        vaf=0.001
+    conda:
+        "/fast/users/altwassr_c/environments/vardict.yaml"
+    shell:
+        r"""
+        mkdir -p vardict
+        vardict -U -G {input.ref} -f {params.vaf} -N {wildcards.sample} -b {input.samples} {params.extra} {input.regions} | ${{CONDA_PREFIX}}/share/vardict-2019.06.04-0/teststrandbias.R | ${{CONDA_PREFIX}}/share/vardict-2019.06.04-0/var2vcf_valid.pl -N {wildcards.sample} -E -f {params.vaf} > {output}
+        """
+
+rule bcf_to_vcf:
+    input:
+        "vardict/{sample}.vcf"
+    output:
+        temp("vardict/{sample}.vcf.gz")
+    params:
+        "-Oz"  # optional parameters for bcftools view (except -o)
+    wrapper:
+        "0.57.0/bio/bcftools/view"
+
+rule bcftools_index:
+    input:
+        "vardict/{sample}.vcf.gz"
+    output:
+        temp("vardict/{sample}.vcf.gz.csi")
+    params:
+        extra=""  # optional parameters for bcftools index
+    wrapper:
+        "0.75.0-13-g0997adf/bio/bcftools/index"
+
+rule norm_vcf:
+    input:
+        vcf = "vardict/{sample}.vcf.gz",
+        index = "vardict/{sample}.vcf.gz.csi"
+    output:
+        temp("vardict/{sample}.norm.vcf.gz")
+    params:
+        ''.join(['-f ', config['refgenome']])  # optional parameters for bcftools norm (except -o)
+    wrapper:
+        "0.75.0-13-g0997adf/bio/bcftools/norm"
+
+
+rule vcf_to_table:
+    input:
+        "vardict/{sample}.norm.vcf.gz"
+    output:
+        "vardict/{sample}.csv"
+    params:
+        wd = config['workdir'],
+        sd = config['snakedir'],
+        rs = f"scripts/Vcf2Table.R",
+    log:                                                                                                                                                         
+       "logs/tools/{sample}_vcf_to_table.log",
+    conda:
+        "../env/vardict-pipeline.yml",
+    shell:
+        r"""
+        Rscript {params.sd}/{params.rs} {params.wd}/{input} {params.wd}/{output}
+        """
+
+rule table_to_anno:
+    input:
+        "vardict/{sample}.csv",
+    output:
+        "table/{sample}.csv"
+    threads:
+        1
+    params:
+        wd = config['workdir'],
+        sd = config['snakedir'],
+        rs = f"scripts/SplitTable.R",
+    shell:
+        r"""
+        Rscript {params.sd}/{params.rs} {params.wd}/{input} {params.wd}/{output}
+        """

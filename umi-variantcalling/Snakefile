@@ -1,0 +1,79 @@
+import os
+import re
+import yaml
+import argparse
+import math
+import importlib.util
+import pysam
+
+# ############ SETUP ##############################
+
+
+# with open("configs/config_robert.yaml") as config_file:
+#     config = yaml.load(config_file)
+# configfile: "configs/config_1122.yaml"
+configfile: "configs/config_1104.yaml"
+# configfile: "configs/config_1156.yaml"
+
+workdir: config['workdir']
+
+# include helper functions
+include: "includes/io.snk"
+include: "includes/utils.snk"
+
+
+samples = os.listdir(config['inputdir'])
+samples = list(filter(lambda x:'.realigned.bam' in x, samples))
+samples = list(filter(lambda x:'.bai' not in x, samples)) ### ROBERT: otherwise index files stay in Samples
+samples = [s.replace('.realigned.bam', '') for s in samples]
+
+list(filter(lambda x:'.bai' in x, samples))
+
+file_ending = ".realigned.bam"
+input_bam = {}
+for sample in samples:
+    input_bam[sample] = ''.join([config['inputdir'], '/', sample, file_ending])
+
+
+# ############ INCLUDES ##############################
+include: "includes/variantcalling.snk"
+include: "includes/annotate.snk"
+include: "includes/filterbam.snk"
+
+
+# specified wildcards have to match the regex
+wildcard_constraints:
+    # eg sample cannot contain _ or / to prevent ambiguous wildcards
+    sample = "[^/.]+",
+    read = "[^_/.]+",
+    read_or_index = "[^_/.]+",
+    filter = "filter[0-9]+"
+    # folder = "^((?!filter).)*$"
+
+
+# ############## MASTER RULE ##############################################
+
+rule all:
+    input:
+        # expand("table/{sample}.edit.csv", sample = samples),
+        # expand("vardict/{sample}.vcf", sample = samples),
+        "filter/variantcalls.csv"
+
+###########################################################################
+
+
+# print out of installed tools
+onstart:
+    #print("    TWIST TARGETED SEQUENCING PIPELINE STARTING.......")
+
+    ##########################
+    # shell("echo Conda-environment: $CONDA_PREFIX")
+    # shell('echo $PATH')
+    # write config to the results directory
+    path_to_config = os.path.join(config['workdir'], "config.yaml")
+    with open(path_to_config, 'w+') as stream:
+        yaml.dump(config, stream, default_flow_style=False)
+    # create logs folder
+    # shell("conda list | show_awk")
+    # shell("ls -l ${{TOOLS}}/bulltools/links | sed -nr '/->/s_.* ([^/]+ -> .*)_  \\1_p' ")
+    # create scratch/tmp/hWES folder for storing stuff

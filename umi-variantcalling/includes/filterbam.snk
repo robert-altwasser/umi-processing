@@ -1,0 +1,95 @@
+rule mutation_bed:
+    input:
+        "table/{sample}.edit.csv"
+    output:
+        "filterbam/{sample}.bed"
+    params:
+        config['filter_bam']['padding']
+    run:
+        dir_path = config['workdir']
+        conf = config['filter_bam']
+        print(f"{dir_path}/{input}")
+        anno_df = pd.read_csv(f"{dir_path}/{input}", sep='\t').sort_values(['Chr', 'Start']).iloc[:,:5]
+        if not len(anno_df.index):
+            anno_df.to_csv("filterbam/{sample}.bed", index=False, sep='\t', header=False)
+        else:
+            # get the bedfie with padded and collapsed regions
+            bed_df = anno_df.groupby('Chr').apply(reduce_regions, conf['padding'])
+            # remove Chr index
+            bed_df = bed_df.reset_index().drop(columns='level_1')
+            # write bed_df to file
+            print('MUTFILE', anno_df, '\n', 'BED', bed_df)
+            bed_df.to_csv(f"{dir_path}/{output}", index=False, sep='\t', header=False)
+            #print('MUTFILE', anno_df, '\n', 'BED', bed_df)
+
+
+rule samtools_view:
+    input:
+        lambda wildcards: input_bam[wildcards.sample], "filterbam/{sample}.bed"
+    output:
+        "filterbam/{sample}.bam"
+    params:
+        "-bhL filterbam/{sample}.bed" # optional params string
+    wrapper:
+        "0.57.0/bio/samtools/view"
+
+
+rule samtools_index:
+    input:
+        "filterbam/{sample}.bam"
+    output:
+        "filterbam/{sample}.bai"
+    params:
+        "" # optional params string
+    wrapper:
+        "0.57.0/bio/samtools/index"
+    
+
+rule mpilup:
+    input:
+        # single or list of bam files
+        bam=lambda wildcards: input_bam[wildcards.sample],
+        reference_genome=config['refgenome']
+    output:
+        temp("mpileup/{sample}.raw.pileup.gz")
+    log:
+        "logs/samtools/mpileup/{sample}.log"
+    params:
+        extra="".join([" -q ", str(config['mpileup']['MAPQ']), " -Q ", str(config['mpileup']['Q'])]),  # optional
+    wrapper:
+        "0.57.0/bio/samtools/mpileup"
+
+
+rule filter_pileup:
+    input:
+        "mpileup/{sample}.raw.pileup.gz"
+    output:
+        "pileup/{sample}.pileup"
+    threads:
+        2
+    params:
+        ''.join([config['snakedir'],'/scripts/shell/cleanpileup.mawk'])
+    shell:
+        r"""
+        mkdir -p pileup
+        zcat {input} | {params} > {output}
+        """
+
+
+rule IGVnav:
+    input:
+        filter = "table/{sample}.filter1.csv",
+        bam = "filterbam/{sample}.bam"
+    output:
+        IGVNav = "filterbam/{sample}.filter1.txt"
+    threads:
+        1
+    run:
+        # selectinng the right filter2 file from the configs
+        df = pd.read_csv(input.filter, sep='\t', index_col=False).iloc[:, :5]
+        print(f'Loaded {input.filter}')
+        for col in ['Call', 'Tags', 'Notes']:
+            df[col] = ''
+        df.loc[:, 'Chr'] = df['Chr'].str.replace('chr', '')
+        df.to_csv(str(output), sep='\t', index=False)
+        print(f"Written to {output.IGVNav}")
