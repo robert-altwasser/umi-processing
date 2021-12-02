@@ -1,0 +1,75 @@
+$schema: "http://json-schema.org/draft-04/schema#"
+description: snakemake configuration file
+
+type: object
+
+properties:
+  general:
+    work_dir:
+      type: string
+    region_file:
+      type: string
+    barcode_file:
+      type: string
+    library_file:
+      type: string
+    demux:
+      type: boolean
+  required:
+    - work_dir
+    - region
+    - barcode_file
+    - library_file
+    - demux
+  
+  reference:
+    genome:
+      type: string
+    known_indels:
+      type: string
+    required:
+      - genome
+      - known_indels
+
+  illumina:
+    basecall_dir:
+      type: string
+    readstructure:
+      type: string
+    runbarcode:
+      type: string
+    lane:
+      type: string
+    required:
+      - basecall_dir
+      - readstructure
+      - runbarcode
+      - lane
+
+  picard:
+    memoryusage:
+      type: string
+    required:
+      - memoryusage
+
+  fgbio:
+    groupreads:
+      type: string
+    callconsensus:
+      type: string
+    fextra:
+      type: string
+    fminq:
+      type: integer
+    required:
+      - groupreads
+      - callconsensus
+      - fextra
+      - fminq  
+
+required:
+  - general
+  - reference
+  - illumina
+  - picard
+  - fgbio

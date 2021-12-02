@@ -1,0 +1,56 @@
+# ==============================================================================
+# Snakemake workflow: Demultiplexing of Illumina sequencing data 
+#                     containing unique molecular identifiers (UMIs)
+#
+# Author: Raphael Hablesreiter (raphael.hablesreiter@charite.de)
+#         Robert Altwasser (robert.altwasser@charite.de
+#
+# Description:
+# Snakemake implementation of IDT analysis guidlines "Demultiplexing Illumina 
+# sequencing data containing unique molecular identifiers (UMIs)".
+# ==============================================================================
+
+# ==============================================================================
+# Initialization of workflow
+# ==============================================================================
+
+import pandas as pd
+from snakemake.utils import validate
+from snakemake.utils import min_version
+
+min_version("5.7.1")
+
+# configfile: "config_stroke.yaml"
+configfile: "config1081.yaml"
+# configfile: "config1156.yaml"
+validate(config, schema="schemas/config.schema.yaml")
+
+# Get sample names from barcode file
+df = pd.read_csv(config["general"]["barcode_file"], sep = '\t', index_col = 'barcode_name')
+SAMPLES = df.index
+
+# SAMPLES = os.listdir(config["general"]["work_dir"] +"/unmapped/")
+# SAMPLES = list(filter(lambda x:'.unmapped.bam' in x, SAMPLES))
+# SAMPLES = [s.replace('.unmapped.bam', '') for s in SAMPLES]
+
+workdir: config["general"]["work_dir"]
+
+# ==============================================================================
+# Include rules
+# ==============================================================================
+
+if config["general"]["demux"]:
+    include: "rules/demux.smk"
+
+include: "rules/qc.smk"
+include: "rules/tools.smk"
+
+# ==============================================================================
+# Results
+# ==============================================================================
+
+rule all:
+    input:
+        expand("unmapped/{sample}.unmapped.bam", sample=SAMPLES),
+        "qc/multiqc_reads.html",
+        "qc/multiqc_alignments.html"
