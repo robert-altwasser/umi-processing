@@ -12,7 +12,7 @@ rule extract_barcodes:
     shell:
         r"""
         mkdir -p metrices
-        picard ExtractIlluminaBarcodes B={input.basecalls} L={params.lane} M={output} BARCODE_FILE={input.bfile} RS={params.rstructure} &> {log}
+        picard ExtractIlluminaBarcodes --SORT false B={input.basecalls} L={params.lane} M={output} BARCODE_FILE={input.bfile} RS={params.rstructure} &> {log}
         """
 
 

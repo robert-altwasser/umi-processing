@@ -21,17 +21,14 @@ from snakemake.utils import min_version
 min_version("5.7.1")
 
 # configfile: "config_stroke.yaml"
-configfile: "config1081.yaml"
+# configfile: "config/config1081.yaml"
+configfile: "config/config1162.yaml"
 # configfile: "config1156.yaml"
 validate(config, schema="schemas/config.schema.yaml")
 
 # Get sample names from barcode file
 df = pd.read_csv(config["general"]["barcode_file"], sep = '\t', index_col = 'barcode_name')
 SAMPLES = df.index
-
-# SAMPLES = os.listdir(config["general"]["work_dir"] +"/unmapped/")
-# SAMPLES = list(filter(lambda x:'.unmapped.bam' in x, SAMPLES))
-# SAMPLES = [s.replace('.unmapped.bam', '') for s in SAMPLES]
 
 workdir: config["general"]["work_dir"]
 
@@ -52,5 +49,5 @@ include: "rules/tools.smk"
 rule all:
     input:
         expand("unmapped/{sample}.unmapped.bam", sample=SAMPLES),
-        "qc/multiqc_reads.html",
-        "qc/multiqc_alignments.html"
+        # "qc/multiqc_reads.html",
+        # "qc/multiqc_alignments.html"

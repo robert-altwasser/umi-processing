@@ -1,8 +1,8 @@
 general:
-  work_dir: "/fast/users/altwassr_c/scratch/P1081/preprocessing"
-  region_file: "/fast/users/altwassr_c/work/umi-data-processing/umi-preprocessing/merged_probe_Charite_AG_DKMS_Panel_V5p1_TE-92294000_hg38.bed"
-  barcode_file: "/fast/users/altwassr_c/scratch/data/P1081/barcode_file2.txt"
-  library_file: "/fast/users/altwassr_c/scratch/data/P1081/library_params2.txt"
+  work_dir: "/fast/users/altwassr_c/scratch/P1081/demux"
+  region_file: "/fast/users/altwassr_c/work/refs/merged_probe_file_combined_Charite_AG_DKMS_Panel_V5p1update_TE-93192476_hg38.bed"
+  barcode_file: "/fast/users/altwassr_c/scratch/data/P1081/P1081_barcode2.csv"
+  library_file: "/fast/users/altwassr_c/scratch/data/P1081/P1081_library_params2.csv"
   demux: TRUE
 
 reference:  
@@ -10,7 +10,7 @@ reference:
   known_indels: "/fast/users/altwassr_c/work/umi-data-processing/umi-preprocessing/refs/dbsnp.vcf.gz"
 
 illumina:
-  basecall_dir: "/fast/users/altwassr_c/scratch/data/P1081/210709_A00643_0275_AHGCH3DRXY/Data/Intensities/BaseCalls/"
+  basecall_dir: "/fast/users/altwassr_c/scratch/data/P1081/Data/Intensities/BaseCalls/"
   readstructure: "148T8B9M8B148T"
   runbarcode: "2020"
   lane: "1"
