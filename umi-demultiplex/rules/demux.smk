@@ -1,18 +1,23 @@
 rule extract_barcodes:
     input:
         basecalls=config["illumina"]["basecall_dir"],
-        bfile=config["general"]["barcode_file"]
+        bfile=expand(config["general"]["barcode_file_prefix"] + "{lane}.csv", lane=LANE)
     output:
-        "metrices/barcode_metrices.txt"
+        expand("metrices/barcode_metrices{lane}.txt", lane=LANE)
     params:
-        lane=config["illumina"]["lane"],
         rstructure=config["illumina"]["readstructure"]
+        lane=expand({lane}, lane=LANE)
     log:
-        "logs/picard/ExtractIlluminaBarcodes.log"
+        expand("logs/picard/ExtractIlluminaBarcodes{lane}.txt", lane=LANE)
     shell:
         r"""
         mkdir -p metrices
-        picard ExtractIlluminaBarcodes B={input.basecalls} L={params.lane} M={output} BARCODE_FILE={input.bfile} RS={params.rstructure} &> {log}
+        picard ExtractIlluminaBarcodes \
+        B={input.basecalls} \
+        L={params.lane} \
+        M={output} \
+        BARCODE_FILE={input.bfile} \
+        RS={params.rstructure} &> {log}
         """
 
 

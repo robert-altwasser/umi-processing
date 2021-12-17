@@ -14,40 +14,57 @@
 # Initialization of workflow
 # ==============================================================================
 
-import pandas as pd
-from snakemake.utils import validate
-from snakemake.utils import min_version
+# import pandas as pd
+# from snakemake.utils import validate
+# from snakemake.utils import min_version
+# 
+# min_version("5.7.1")
+# 
+# # configfile: "config_stroke.yaml"
+# # configfile: "config/config1081.yaml"
+# configfile: "config/config1162.yaml"
+# # configfile: "config1156.yaml"
+# validate(config, schema="schemas/config.schema.yaml")
+# 
+# workdir: config["general"]["work_dir"]
 
-min_version("5.7.1")
+LANE=[1,2]
 
-# configfile: "config_stroke.yaml"
-# configfile: "config/config1081.yaml"
-configfile: "config/config1162.yaml"
-# configfile: "config1156.yaml"
-validate(config, schema="schemas/config.schema.yaml")
 
-# Get sample names from barcode file
-df = pd.read_csv(config["general"]["barcode_file"], sep = '\t', index_col = 'barcode_name')
-SAMPLES = df.index
+print(expand("Lane {lane}, ", lane=LANE))
 
-workdir: config["general"]["work_dir"]
+# # Get sample names from barcode file
+# df = pd.read_csv(config["general"]["barcode_file"], sep = '\t', index_col = 'barcode_name')
+# SAMPLES = df.index
+# 
+# print(SAMPLES)
 
-# ==============================================================================
-# Include rules
-# ==============================================================================
-
-if config["general"]["demux"]:
-    include: "rules/demux.smk"
-
-include: "rules/qc.smk"
-include: "rules/tools.smk"
-
-# ==============================================================================
-# Results
-# ==============================================================================
-
+rule test_lanes:
+    output:
+        expand("lane_{lane}/lane_{lane}.txt", lane=LANE)
+    params:
+        lane_dir=expand("lane_{lane}", lane=LANE)
+    shell:
+        """
+        mkdir -p {params.lane_dir}
+        touch {output}
+        """
+# # ==============================================================================
+# # Include rules
+# # ==============================================================================
+# 
+# if config["general"]["demux"]:
+#     include: "rules/demux.smk"
+# 
+# include: "rules/qc.smk"
+# include: "rules/tools.smk"
+# 
+# # ==============================================================================
+# # Results
+# # ==============================================================================
+# 
 rule all:
     input:
-        expand("unmapped/{sample}.unmapped.bam", sample=SAMPLES),
+        expand("lane_{lane}/lane_{lane}.txt", lane=LANE)
         # "qc/multiqc_reads.html",
         # "qc/multiqc_alignments.html"

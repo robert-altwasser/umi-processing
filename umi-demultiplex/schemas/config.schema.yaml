@@ -9,9 +9,9 @@ properties:
       type: string
     region_file:
       type: string
-    barcode_file:
+    barcode_file_prefix:
       type: string
-    library_file:
+    library_file_prefix:
       type: string
     demux:
       type: boolean

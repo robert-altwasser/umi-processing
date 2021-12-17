@@ -1,8 +1,8 @@
 general:
   work_dir: "/fast/users/altwassr_c/scratch/P1081/demux"
   region_file: "/fast/users/altwassr_c/work/refs/merged_probe_file_combined_Charite_AG_DKMS_Panel_V5p1update_TE-93192476_hg38.bed"
-  barcode_file: "/fast/users/altwassr_c/scratch/data/P1081/P1081_barcode2.csv"
-  library_file: "/fast/users/altwassr_c/scratch/data/P1081/P1081_library_params2.csv"
+  barcode_file_prefix: "/fast/users/altwassr_c/scratch/data/P1081/P1081_barcode"
+  library_file_prefix: "/fast/users/altwassr_c/scratch/data/P1081/P1081_library_params"
   demux: TRUE
 
 reference:  
