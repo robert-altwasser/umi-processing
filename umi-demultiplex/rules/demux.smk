@@ -12,7 +12,7 @@ rule extract_barcodes:
     shell:
         r"""
         mkdir -p metrices
-        picard ExtractIlluminaBarcodes --SORT false B={input.basecalls} L={params.lane} M={output} BARCODE_FILE={input.bfile} RS={params.rstructure} &> {log}
+        picard ExtractIlluminaBarcodes B={input.basecalls} L={params.lane} M={output} BARCODE_FILE={input.bfile} RS={params.rstructure} &> {log}
         """
 
 
@@ -39,7 +39,7 @@ rule basecalls_to_sam:
         L={params.lane} \
         RS={params.rstructure} \
         RUN_BARCODE={params.runbarcode} \
-        LIBRARY_PARAMS={input.lparams}\
+        LIBRARY_PARAMS={input.lparams} \
         SEQUENCING_CENTER=CHARITE \
         TMP_DIR=tmp/ \
         MAX_RECORDS_IN_RAM={params.mrecords} MAX_READS_IN_RAM_PER_TILE={params.mrecords} &> {log}

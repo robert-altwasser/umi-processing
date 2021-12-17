@@ -1,8 +1,8 @@
 general:
   work_dir: "/fast/users/altwassr_c/scratch/P1162/demux"
   region_file: "/fast/users/altwassr_c/work/refs/merged_probe_file_combined_Charite_AG_DKMS_Panel_V5p1update_TE-93192476_hg38.bed"
-  barcode_file: "/fast/users/altwassr_c/scratch/data/P1162/P1162_barcode1.csv"
-  library_file: "/fast/users/altwassr_c/scratch/data/P1162/P1162_library_params1.csv"
+  barcode_file: "/fast/users/altwassr_c/scratch/data/P1162/P1162_barcode2.csv"
+  library_file: "/fast/users/altwassr_c/scratch/data/P1162/P1162_library_params2.csv"
   demux: TRUE
 
 reference:  
@@ -13,7 +13,7 @@ illumina:
   basecall_dir: "/fast/users/altwassr_c/scratch/data/P1162/Data/Intensities/BaseCalls/"
   readstructure: "148T8B9M8B148T"
   runbarcode: "2020"
-  lane: "1"
+  lane: "2"
 
 picard:
   memoryusage: "-Xmx150g -Xms150g"
