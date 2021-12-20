@@ -14,7 +14,8 @@
 # Initialization of workflow
 # ==============================================================================
 
-# import pandas as pd
+import pandas as pd
+import numpy as np
 # from snakemake.utils import validate
 # from snakemake.utils import min_version
 # 
@@ -28,16 +29,39 @@
 # 
 # workdir: config["general"]["work_dir"]
 
-LANE=[1,2]
+
+### Get sample ->Lane matrix
+LANES=["1","2"]
+barcode_file_prefix= "/home/altwassr/ablage/P1081/P1081_barcode"
+library_file_prefix= "/home/altwassr/ablage/P1081/P1081_library_params"
+
+temp_samples = pd.Series([], dtype = "str", name = "samples")
+temp_lanes = pd.Series([], dtype = "str", name = "lanes")
+for lane in LANES:
+    print(lane)
+    
+    df = pd.read_csv(barcode_file_prefix + lane + ".csv", sep = '\t')
+    
+    temp_samples = pd.concat([temp_samples, df.iloc[:,0]])
+    temp_lanes = pd.concat([temp_lanes, pd.Series(np.repeat(lane, df.iloc[:,0].size))])
 
 
-print(expand("Lane {lane}, ", lane=LANE))
+samples_lanes = pd.DataFrame({"sample_names" : temp_samples,
+                              "lanes": temp_lanes})
+samples_lanes = samples_lanes.set_index("sample_names")
+
+
 
 # # Get sample names from barcode file
 # df = pd.read_csv(config["general"]["barcode_file"], sep = '\t', index_col = 'barcode_name')
 # SAMPLES = df.index
 # 
 # print(SAMPLES)
+
+def get_lane_by_sample(sample):
+    return(samples_lanes.loc[sample])
+
+
 
 rule test_lanes:
     output:
