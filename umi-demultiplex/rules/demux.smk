@@ -1,17 +1,18 @@
 rule extract_barcodes:
     input:
         basecalls=config["illumina"]["basecall_dir"],
-        bfile=expand(config["general"]["barcode_file_prefix"] + "{lane}.csv", lane=LANE)
+        bfile=config["general"]["barcode_file_prefix"] + "{lane}.csv"
     output:
-        expand("metrices/barcode_metrices{lane}.txt", lane=LANE)
+        "metrices/barcode_metrices{lane}.txt"
     params:
         rstructure=config["illumina"]["readstructure"]
         lane=expand({lane}, lane=LANE)
     log:
-        expand("logs/picard/ExtractIlluminaBarcodes{lane}.txt", lane=LANE)
+        "logs/picard/ExtractIlluminaBarcodes{lane}.txt"
     shell:
         r"""
         mkdir -p metrices
+
         picard ExtractIlluminaBarcodes \
         B={input.basecalls} \
         L={params.lane} \
@@ -24,12 +25,12 @@ rule extract_barcodes:
 rule basecalls_to_sam:
     input:
         basecalls=config["illumina"]["basecall_dir"],
-        metrices="metrices/barcode_metrices.txt",
-        lparams=config["general"]["library_file"]
+        metrices="metrices/barcode_metrices{lane}.txt",
+        lparams=config["general"]["library_file_prefix"] + "{lane}.csv"
     output:
-        expand("unmapped/{sample}.unmapped.bam", sample=SAMPLES)
+        expand("unmapped/{sample}_{lane}.unmapped.bam", sample=SAMPLES)
     params:
-        lane=config["illumina"]["lane"],
+        lane=expand({lane}, lane=LANE),
         rstructure=config["illumina"]["readstructure"],
         runbarcode=config["illumina"]["runbarcode"],
         musage=config["picard"]["memoryusage"],
@@ -47,6 +48,7 @@ rule basecalls_to_sam:
         LIBRARY_PARAMS={input.lparams} \
         SEQUENCING_CENTER=CHARITE \
         TMP_DIR=tmp/ \
-        MAX_RECORDS_IN_RAM={params.mrecords} MAX_READS_IN_RAM_PER_TILE={params.mrecords} &> {log}
+        MAX_RECORDS_IN_RAM={params.mrecords} \
+        MAX_READS_IN_RAM_PER_TILE={params.mrecords} &> {log}
         rm -r tmp 
         """

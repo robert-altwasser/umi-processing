@@ -32,25 +32,25 @@ import numpy as np
 
 ### Get sample ->Lane matrix
 LANES=["1","2"]
+SAMPLES=["A","B"]
 barcode_file_prefix= "/home/altwassr/ablage/P1081/P1081_barcode"
 library_file_prefix= "/home/altwassr/ablage/P1081/P1081_library_params"
 
 temp_samples = pd.Series([], dtype = "str", name = "samples")
 temp_lanes = pd.Series([], dtype = "str", name = "lanes")
 for lane in LANES:
-    print(lane)
-    
     df = pd.read_csv(barcode_file_prefix + lane + ".csv", sep = '\t')
     
     temp_samples = pd.concat([temp_samples, df.iloc[:,0]])
     temp_lanes = pd.concat([temp_lanes, pd.Series(np.repeat(lane, df.iloc[:,0].size))])
 
 
-samples_lanes = pd.DataFrame({"sample_names" : temp_samples,
-                              "lanes": temp_lanes})
-samples_lanes = samples_lanes.set_index("sample_names")
+### Dict mapping samples to lanes
+samples_lanes = dict(zip(temp_samples, temp_lanes))
 
-
+### Method to return the name of 'barcode_metrices' file for sample name
+def get_barcode_file_for_sample(wildcards):
+    return "metrices/barcode_metrices" + samples_lanes[wildcards.sample] + ".csv"
 
 # # Get sample names from barcode file
 # df = pd.read_csv(config["general"]["barcode_file"], sep = '\t', index_col = 'barcode_name')
@@ -58,19 +58,34 @@ samples_lanes = samples_lanes.set_index("sample_names")
 # 
 # print(SAMPLES)
 
-def get_lane_by_sample(sample):
-    return(samples_lanes.loc[sample])
 
+rule all:
+    input:
+        "fastq/sample_AML-111.txt",
+        "fastq/sample_AML-385.txt"
+        #expand("lane_{lane}/{sample}_lane_{lane}.txt", sample=SAMPLES, lane=LANES)
+        # "qc/multiqc_reads.html",
+        # "qc/multiqc_alignments.html"
 
-
-rule test_lanes:
+rule demux:
+    input:
+        get_barcode_file_for_sample
     output:
-        expand("lane_{lane}/lane_{lane}.txt", lane=LANE)
-    params:
-        lane_dir=expand("lane_{lane}", lane=LANE)
+        "fastq/sample_{sample}.fastq"
     shell:
         """
-        mkdir -p {params.lane_dir}
+        mkdir -p fastq
+        touch {output}
+        """
+
+rule test_barcodes:
+    input:
+        "starter.txt"
+    output:
+        "metrices/barcode_metrices{lane}.csv"
+    shell:
+        """
+        mkdir -p metrices
         touch {output}
         """
 # # ==============================================================================
@@ -86,9 +101,3 @@ rule test_lanes:
 # # ==============================================================================
 # # Results
 # # ==============================================================================
-# 
-rule all:
-    input:
-        expand("lane_{lane}/lane_{lane}.txt", lane=LANE)
-        # "qc/multiqc_reads.html",
-        # "qc/multiqc_alignments.html"
