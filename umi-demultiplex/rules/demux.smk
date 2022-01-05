@@ -1,12 +1,27 @@
+### Method to return the lane for sample name
+### REQUIRES: samples_lanes
+def get_lane_for_sample(wildcards):
+    return samples_lanes[wildcards.sample]
+
+### Method to return the name of 'barcode_metrices' file for sample name
+### REQUIRES: samples_lanes
+def get_barcode_metric_for_sample(wildcards):
+    return "metrices/barcode_metrices" + samples_lanes[wildcards.sample] + ".csv"
+
+### Method to return the name of 'library_file' file for sample name
+### REQUIRES: samples_lanes
+def get_library_file_for_sample(wildcards):
+    return library_file_prefix + samples_lanes[wildcards.sample] + ".csv"
+
 rule extract_barcodes:
     input:
         basecalls=config["illumina"]["basecall_dir"],
-        bfile=config["general"]["barcode_file_prefix"] + "{lane}.csv"
+        bfile=get_barcode_file_for_sample
     output:
         "metrices/barcode_metrices{lane}.txt"
     params:
         rstructure=config["illumina"]["readstructure"]
-        lane=expand({lane}, lane=LANE)
+        lane={lane}
     log:
         "logs/picard/ExtractIlluminaBarcodes{lane}.txt"
     shell:
@@ -25,12 +40,12 @@ rule extract_barcodes:
 rule basecalls_to_sam:
     input:
         basecalls=config["illumina"]["basecall_dir"],
-        metrices="metrices/barcode_metrices{lane}.txt",
-        lparams=config["general"]["library_file_prefix"] + "{lane}.csv"
+        metrices=get_barcode_metric_for_sample,
+        lparams=get_library_file_for_sample
     output:
-        expand("unmapped/{sample}_{lane}.unmapped.bam", sample=SAMPLES)
+        expand("unmapped/{sample}.unmapped.bam", sample=SAMPLES)
     params:
-        lane=expand({lane}, lane=LANE),
+        lane=get_lane_for_sample,
         rstructure=config["illumina"]["readstructure"],
         runbarcode=config["illumina"]["runbarcode"],
         musage=config["picard"]["memoryusage"],
@@ -50,5 +65,5 @@ rule basecalls_to_sam:
         TMP_DIR=tmp/ \
         MAX_RECORDS_IN_RAM={params.mrecords} \
         MAX_READS_IN_RAM_PER_TILE={params.mrecords} &> {log}
-        rm -r tmp 
+        rm -r tmp
         """

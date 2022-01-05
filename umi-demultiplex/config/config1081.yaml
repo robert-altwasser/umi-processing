@@ -13,7 +13,7 @@ illumina:
   basecall_dir: "/home/altwassr/ablage/data/P1081/Data/Intensities/BaseCalls/"
   readstructure: "148T8B9M8B148T"
   runbarcode: "2020"
-  lane: "1"
+  lane: ["1","2"]
 
 picard:
   memoryusage: "-Xmx64g -Xms64g"
