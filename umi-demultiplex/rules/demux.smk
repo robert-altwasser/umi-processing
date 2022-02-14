@@ -16,6 +16,7 @@ def get_library_file_for_sample(wildcards):
 rule extract_barcodes:
     input:
         basecalls=config["illumina"]["basecall_dir"],
+        bfile=barcode_file_prefix + "{lane}.csv"
         bfile=get_barcode_file_for_sample
     output:
         "metrices/barcode_metrices{lane}.txt"
