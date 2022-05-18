@@ -6,6 +6,9 @@ rule get_refs:
         genome="refs/genome.fasta",
         known_indels="refs/known_indels.vcf.gz",
         index="refs/known_indels.vcf.gz.tbi"
+    resources:
+        mem_mb="02G",
+        time="01:00:00"
     shell:
         r"""
         mkdir -p refs
@@ -21,21 +24,27 @@ rule samtools_faidx:
         "refs/genome.fasta.fai"
     params:
         "" # optional params string
+    resources:
+        mem_mb="2G",
+        time="01:00:00"
     wrapper:
-        "0.80.2/bio/samtools/faidx"
+        "v1.0.0/bio/samtools/faidx"
 
 rule bwa_index:
     input:
         "refs/genome.fasta"
     output:
-        multiext("refs/genome.fasta", ".amb", ".ann", ".bwt", ".pac", ".sa")
+        idx=multiext("refs/genome.fasta", ".amb", ".ann", ".bwt", ".pac", ".sa")
     log:
         "logs/bwa_index/genome.log"
     params:
         prefix="refs/genome.fasta",
         algorithm="bwtsw"
+    resources:
+        mem_mb="2G",
+        time="01:00:00"
     wrapper:
-        "0.80.2/bio/bwa/index"
+        "v1.0.0/bio/bwa/index"
 
 rule create_dict:
     input:
@@ -47,15 +56,18 @@ rule create_dict:
     params:
         extra=""  # optional: extra arguments for picard.
     wrapper:
-        "0.80.2/bio/picard/createsequencedictionary"
+        "v1.0.0/bio/picard/createsequencedictionary"
 
 rule samtools_index:
     input:
-        "mapped/{prefix}.bam"
+        "mapped/{sample}.bam"
     output:
-        "mapped/{prefix}.bam.bai"
+        "mapped/{sample}.bam.bai"
+    resources:
+        mem_mb="2G",
+        time="01:00:00"
     wrapper:
-        "0.78.0/bio/samtools/index"
+        "v1.0.0/bio/samtools/index"
 
 rule bed_to_interval_list:
     input:
@@ -67,6 +79,9 @@ rule bed_to_interval_list:
         "logs/picard/bedtointervallist/a.log"
     params:
         # optional parameters
-        "SORT=true" # sort output interval list before writing
+        extra="--SORT true", # sort output interval list before writing
+    resources:
+        mem_mb=1024,
+        time="01:00:00"
     wrapper:
-        "0.80.2/bio/picard/bedtointervallist"
+        "v1.0.0/bio/picard/bedtointervallist"

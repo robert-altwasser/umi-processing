@@ -1,0 +1,8 @@
+__default__:
+    time: 05:00:00
+    mem: 10G
+    output: logs/slurm/{rule}/{rule}_%j.out
+    error:  logs/slurm/{rule}/{rule}_%j.err
+
+
+

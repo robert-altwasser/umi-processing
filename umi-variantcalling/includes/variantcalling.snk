@@ -30,12 +30,14 @@ rule vardict:
     params:
         extra="-c 1 -S 2 -E 3 -g 4",
         vaf=0.001
+    resources:
+        time="02:00:00"
     conda:
         "/fast/users/altwassr_c/environments/vardict.yaml"
     shell:
         r"""
         mkdir -p vardict
-        vardict -U -G {input.ref} -f {params.vaf} -N {wildcards.sample} -b {input.samples} {params.extra} {input.regions} | ${{CONDA_PREFIX}}/share/vardict-2019.06.04-0/teststrandbias.R | ${{CONDA_PREFIX}}/share/vardict-2019.06.04-0/var2vcf_valid.pl -N {wildcards.sample} -E -f {params.vaf} > {output}
+        vardict -U -G {input.ref} -f {params.vaf} -N {wildcards.sample} -b {input.samples} {params.extra} {input.regions} | ${{CONDA_PREFIX}}/share/vardict-20*/teststrandbias.R | ${{CONDA_PREFIX}}/share/vardict-20*/var2vcf_valid.pl -N {wildcards.sample} -E -f {params.vaf} > {output}
         """
 
 rule bcf_to_vcf:
@@ -44,9 +46,11 @@ rule bcf_to_vcf:
     output:
         temp("vardict/{sample}.vcf.gz")
     params:
-        "-Oz"  # optional parameters for bcftools view (except -o)
+        extra=""  # optional parameters for bcftools view (except -o)
+    resources:
+        time="00:30:00"
     wrapper:
-        "0.80.2/bio/bcftools/view"
+        "v1.0.0/bio/bcftools/view"
 
 rule bcftools_index:
     input:
@@ -55,8 +59,10 @@ rule bcftools_index:
         temp("vardict/{sample}.vcf.gz.csi")
     params:
         extra=""  # optional parameters for bcftools index
+    resources:
+        time="00:30:00"
     wrapper:
-        "0.80.2/bio/bcftools/index"
+        "v1.0.0/bio/bcftools/index"
 
 rule norm_vcf:
     input:
@@ -65,9 +71,11 @@ rule norm_vcf:
     output:
         temp("vardict/{sample}.norm.vcf.gz")
     params:
-        ''.join(['-f ', config['refgenome']])  # optional parameters for bcftools norm (except -o)
+        extra=''.join(['-f ', config['refgenome']])  # optional parameters for bcftools norm (except -o)
+    resources:
+        time="00:30:00"
     wrapper:
-        "0.80.2/bio/bcftools/norm"
+        "v1.0.0/bio/bcftools/norm"
 
 
 rule vcf_to_table:
@@ -79,8 +87,8 @@ rule vcf_to_table:
         wd = config['workdir'],
         sd = config['snakedir'],
         rs = f"scripts/Vcf2Table.R",
-    log:                                                                                                                                                         
-       "logs/tools/{sample}_vcf_to_table.log",
+    resources:
+        time="00:30:00"
     conda:
         "../env/vardict-pipeline.yml",
     shell:
@@ -95,6 +103,8 @@ rule table_to_anno:
         "table/{sample}.csv"
     threads:
         1
+    resources:
+        time="00:30:00"
     params:
         wd = config['workdir'],
         sd = config['snakedir'],

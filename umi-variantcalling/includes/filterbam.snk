@@ -5,6 +5,8 @@ rule mutation_bed:
         "filterbam/{sample}.bed"
     params:
         config['filter_bam']['padding']
+    resources:
+        time="00:30:00"
     run:
         dir_path = config['workdir']
         conf = config['filter_bam']
@@ -28,9 +30,11 @@ rule samtools_view:
     output:
         "filterbam/{sample}.bam"
     params:
-        "-bhL filterbam/{sample}.bed" # optional params string
+        extra="-bhL filterbam/{sample}.bed" # optional params string
+    resources:
+        time="00:30:00"
     wrapper:
-        "0.80.2/bio/samtools/view"
+        "v1.0.0/bio/samtools/view"
 
 
 rule samtools_index:
@@ -38,10 +42,14 @@ rule samtools_index:
         "filterbam/{sample}.bam"
     output:
         "filterbam/{sample}.bai"
+    threads:
+        4
     params:
         "" # optional params string
+    resources:
+        time="00:30:00"
     wrapper:
-        "0.80.2/bio/samtools/index"
+        "v1.0.0/bio/samtools/index"
     
 
 rule mpilup:
@@ -55,8 +63,10 @@ rule mpilup:
         "logs/samtools/mpileup/{sample}.log"
     params:
         extra="".join([" -q ", str(config['mpileup']['MAPQ']), " -Q ", str(config['mpileup']['Q'])]),  # optional
+    resources:
+        time="00:30:00"
     wrapper:
-        "0.80.2/bio/samtools/mpileup"
+        "v1.0.0/bio/samtools/mpileup"
 
 
 rule filter_pileup:
@@ -66,6 +76,8 @@ rule filter_pileup:
         "pileup/{sample}.pileup"
     threads:
         2
+    resources:
+        time="00:30:00"
     params:
         ''.join([config['snakedir'],'/scripts/shell/cleanpileup.mawk'])
     shell:
@@ -83,6 +95,8 @@ rule IGVnav:
         IGVNav = "filterbam/{sample}.filter1.txt"
     threads:
         1
+    resources:
+        time="00:30:00"
     run:
         # selectinng the right filter2 file from the configs
         df = pd.read_csv(input.filter, sep='\t', index_col=False).iloc[:, :5]

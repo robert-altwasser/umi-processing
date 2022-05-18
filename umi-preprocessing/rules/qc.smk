@@ -10,6 +10,9 @@ rule get_fastqc_input:
         "logs/reads/{sample}.samtofastq.log"
     threads:
         8
+    resources:
+        mem_mb="30G",
+        time="01:00:00"
     shell:
         r"""
         picard {params.musage} SamToFastq I={input} F={output.read1} SECOND_END_FASTQ={output.read2} &> {log}
@@ -26,8 +29,11 @@ rule fastqc:
     log:
         "logs/fastqc/{sample}.{read}.log"
     threads: 1
+    resources:
+        mem_mb="10G",
+        time="01:00:00"
     wrapper:
-        "0.80.2/bio/fastqc"
+        "v1.0.0/bio/fastqc"
 
 
 rule samtools_stats:
@@ -38,10 +44,13 @@ rule samtools_stats:
         region=""
     output:
         "qc/samtools-stats/{sample}.{type}.txt"
+    resources:
+        mem_mb="10G",
+        time="01:00:00"
     log:
         "logs/samtools-stats/{sample}.{type}.log"
     wrapper:
-        "0.80.2/bio/samtools/stats"
+        "v1.0.0/bio/samtools/stats"
 
 
 rule picard_collect_hs_metrics:
@@ -57,11 +66,13 @@ rule picard_collect_hs_metrics:
     params:
         # Optional extra arguments. Here we reduce sample size
         # to reduce the runtime in our unit test.
-        "SAMPLE_SIZE=1000"
+        extra="--SAMPLE_SIZE 1000"
     log:
         "logs/picard_collect_hs_metrics/{sample}.{type}.log"
+    resources:
+        time="00:30:00"
     wrapper:
-        "0.80.2/bio/picard/collecthsmetrics"
+        "v1.0.0/bio/picard/collecthsmetrics"
 
 
 rule multiqc_alignments:
@@ -71,9 +82,29 @@ rule multiqc_alignments:
         report("qc/multiqc_alignments.html", caption="../report/multiqc_alignments.rst", category="Quality control")
     log:
         "logs/multiqc.log"
+    resources:
+        mem_mb="10G",
+        time="01:00:00"
     wrapper:
-         "0.80.2/bio/multiqc"
+         "v1.0.0/bio/multiqc"
 
+
+# rule multiqc_reads:
+#     input:
+#         expand("qc/fastqc/{sample}.{ftype}_fastqc.zip", sample=SAMPLES, ftype=["R1","R2"])
+#     output:
+#         report("qc/multiqc_reads.html", caption="../report/multiqc_reads.rst", category="Quality control")
+#     log:
+#         "logs/multiqc.log"
+#     params:
+#         "--interactive"
+#     resources:
+#         mem_mb="100G",
+#         time="01:00:00"
+#     shell:
+#         """
+#          multiqc {params} --force -o {output}  {input} &> {log}
+#         """
 
 rule multiqc_reads:
     input:
@@ -82,5 +113,8 @@ rule multiqc_reads:
         report("qc/multiqc_reads.html", caption="../report/multiqc_reads.rst", category="Quality control")
     log:
         "logs/multiqc.log"
+    resources:
+        mem_mb="70G",
+        time="01:00:00"
     wrapper:
-         "0.80.2/bio/multiqc"
+         "v1.0.0/bio/multiqc"
