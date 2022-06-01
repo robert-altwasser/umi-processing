@@ -113,8 +113,10 @@ rule multiqc_reads:
         report("qc/multiqc_reads.html", caption="../report/multiqc_reads.rst", category="Quality control")
     log:
         "logs/multiqc.log"
+    params:
+        "--interactive  --cl_config 'max_table_rows: 1000'"
     resources:
-        mem_mb="70G",
-        time="01:00:00"
+        mem_mb="20G",
+        time="00:10:00"
     wrapper:
          "v1.0.0/bio/multiqc"

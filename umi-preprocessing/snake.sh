@@ -16,10 +16,9 @@ snakemake \
     --keep-going \
     --restart-times 1 \
     --cluster-config ~/work/umi-testing/umi-demultiplex/cluster/cluster_config.yaml \
-    --dry-run \
     --profile=cubi-v1 \
-    --use-conda -p --rerun-incomplete --conda-prefix=/fast/users/altwassr_c/work/conda-envs/
-# snakemake --drmaa " -t 10:00:00 -p medium --mem=160000 --mem-per-cpu=15048 --ntasks-per-node=10" -r --nt --jobs 40 --use-conda -p --rerun-incomplete --until map_reads1
-#  snakemake --drmaa " -t 10:00:00 -p medium --mem=160000 --mem-per-cpu=15048 --ntasks-per-node=10" -r --nt --jobs 40 --use-conda -p --rerun-incomplete
+    --reason \
+    --printshellcmds \
+    --use-conda --rerun-incomplete --conda-prefix=/fast/users/altwassr_c/work/conda-envs/
 echo 'Finished'
 

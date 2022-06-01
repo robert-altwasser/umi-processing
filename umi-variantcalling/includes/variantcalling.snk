@@ -44,7 +44,7 @@ rule bcf_to_vcf:
     input:
         "vardict/{sample}.vcf"
     output:
-        temp("vardict/{sample}.vcf.gz")
+        "vardict/{sample}.vcf.gz"
     params:
         extra=""  # optional parameters for bcftools view (except -o)
     resources:
@@ -56,7 +56,7 @@ rule bcftools_index:
     input:
         "vardict/{sample}.vcf.gz"
     output:
-        temp("vardict/{sample}.vcf.gz.csi")
+        "vardict/{sample}.vcf.gz.csi"
     params:
         extra=""  # optional parameters for bcftools index
     resources:
@@ -69,7 +69,7 @@ rule norm_vcf:
         vcf = "vardict/{sample}.vcf.gz",
         index = "vardict/{sample}.vcf.gz.csi"
     output:
-        temp("vardict/{sample}.norm.vcf.gz")
+        "vardict/{sample}.norm.vcf.gz"
     params:
         extra=''.join(['-f ', config['refgenome']])  # optional parameters for bcftools norm (except -o)
     resources:

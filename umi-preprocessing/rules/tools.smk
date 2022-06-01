@@ -41,8 +41,8 @@ rule bwa_index:
         prefix="refs/genome.fasta",
         algorithm="bwtsw"
     resources:
-        mem_mb="2G",
-        time="01:00:00"
+        mem_mb="10G",
+        time="02:00:00"
     wrapper:
         "v1.0.0/bio/bwa/index"
 

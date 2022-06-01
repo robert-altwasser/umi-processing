@@ -37,9 +37,9 @@ rule ebfilter:
     threads:
         4
     resources:
-        time="00:30:00",
-        mem="20G",
-        mem_mb="20G"
+        time=get_time_3_1,
+        mem=get_mem_30_10,
+        mem_mb=get_mem_30_10
     conda:
         "../env/EBFilter-env.yml"
     params:
@@ -79,7 +79,8 @@ rule primer3:
         "../env/primer3-env.yml"
     threads: 1
     resources:
-        time="00:30:00"
+        time="00:30:00",
+        mem_mb=get_mem_3_1
     params:
         genome_split = f"/fast/groups/ag_damm/work/umi-data-processing/split"
     script:
@@ -98,9 +99,9 @@ rule detect_HDR:
         f"../env/HDR-env.yml"
     threads: 1
     resources:
-        time="00:30:00",
-        mem="20G",
-        mem_mb="20G"
+        time=get_time_3_1,
+        mem=get_mem_40_10,
+        mem_mb=get_mem_40_10
     params:
         min_sim = config['HDR']['min_similarity'],
         min_q = config['HDR']['min_q'],
@@ -140,7 +141,9 @@ rule combine_samples:
         rs = f"scripts/MergeCalls.R"
     threads: 1
     resources:
-        time="00:30:00"
+        time="00:10:00",
+        mem="10G",
+        mem_mb="10G"
     shell:
         r"""
         mkdir -p filter

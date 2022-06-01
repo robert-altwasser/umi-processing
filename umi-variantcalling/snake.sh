@@ -1,6 +1,6 @@
 #!/bin/bash
 
-export SNAKEMAKE_SLURM_DEBUG=1
+# export SNAKEMAKE_SLURM_DEBUG=1
 
 #SBATCH --job-name=variantcalling
 #SBATCH --ntasks=1
@@ -14,15 +14,16 @@ export SNAKEMAKE_SLURM_DEBUG=1
 echo 'Start'
 snakemake \
     --nt \
-    --jobs 50 \
-    --restart-times 1 \
+    --jobs 60 \
+    --restart-times 0 \
     --cluster-config ~/work/umi-testing/umi-demultiplex/cluster/cluster_config.yaml \
     --profile=cubi-v1 \
     --keep-going \
-    --use-conda -p --rerun-incomplete --conda-prefix=/fast/users/altwassr_c/work/conda-envs/
+    --reason \
+    --printshellcmds \
+    --use-conda --rerun-incomplete --conda-prefix=/fast/users/altwassr_c/work/conda-envs/
 # --touch \
 # --skip-script-cleanup \
-    #--keep-going \
 
 # --until annovar \
 echo 'Finished'

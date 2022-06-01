@@ -15,6 +15,8 @@ snakemake \
     --nt \
     --jobs 60 \
     --profile=cubi-v1 \
+    --touch \
+    --dry-run \
     --cluster-config ~/work/umi-testing/umi-demultiplex/cluster/cluster_config.yaml \
     --use-conda -p --rerun-incomplete --conda-prefix=/fast/users/altwassr_c/work/conda-envs/
 echo 'Finished'
