@@ -31,13 +31,13 @@ rule vardict:
         extra="-c 1 -S 2 -E 3 -g 4",
         vaf=0.001
     resources:
-        time="02:00:00"
+        time=get_time_2_1
     conda:
         "/fast/users/altwassr_c/environments/vardict.yaml"
     shell:
         r"""
         mkdir -p vardict
-        vardict -U -G {input.ref} -f {params.vaf} -N {wildcards.sample} -b {input.samples} {params.extra} {input.regions} | ${{CONDA_PREFIX}}/share/vardict-20*/teststrandbias.R | ${{CONDA_PREFIX}}/share/vardict-20*/var2vcf_valid.pl -N {wildcards.sample} -E -f {params.vaf} > {output}
+        vardict -k 0 -U -G {input.ref} -f {params.vaf} -N {wildcards.sample} -b {input.samples} {params.extra} {input.regions} | ${{CONDA_PREFIX}}/share/vardict-20*/teststrandbias.R | ${{CONDA_PREFIX}}/share/vardict-20*/var2vcf_valid.pl -N {wildcards.sample} -E -f {params.vaf} > {output}
         """
 
 rule bcf_to_vcf:

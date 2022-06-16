@@ -83,7 +83,7 @@ rule multiqc_alignments:
     log:
         "logs/multiqc.log"
     resources:
-        mem_mb="10G",
+        mem_mb=get_mem_20_10,
         time="01:00:00"
     wrapper:
          "v1.0.0/bio/multiqc"
@@ -116,7 +116,7 @@ rule multiqc_reads:
     params:
         "--interactive  --cl_config 'max_table_rows: 1000'"
     resources:
-        mem_mb="20G",
-        time="00:10:00"
+        mem_mb=get_mem_20_10,
+        time="01:00:00"
     wrapper:
          "v1.0.0/bio/multiqc"

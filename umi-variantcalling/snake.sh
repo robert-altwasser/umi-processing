@@ -15,13 +15,14 @@ echo 'Start'
 snakemake \
     --nt \
     --jobs 60 \
-    --restart-times 0 \
+    --restart-times 2 \
     --cluster-config ~/work/umi-testing/umi-demultiplex/cluster/cluster_config.yaml \
     --profile=cubi-v1 \
     --keep-going \
     --reason \
     --printshellcmds \
-    --use-conda --rerun-incomplete --conda-prefix=/fast/users/altwassr_c/work/conda-envs/
+    --rerun-incomplete \
+    --use-conda --conda-prefix=/fast/users/altwassr_c/work/conda-envs/
 # --touch \
 # --skip-script-cleanup \
 

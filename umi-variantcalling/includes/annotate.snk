@@ -82,7 +82,7 @@ rule primer3:
         time="00:30:00",
         mem_mb=get_mem_3_1
     params:
-        genome_split = f"/fast/groups/ag_damm/work/umi-data-processing/split"
+        genome_split = config["primer3"]["split"]
     script:
         "../scripts/primer3.py"
 
@@ -141,9 +141,8 @@ rule combine_samples:
         rs = f"scripts/MergeCalls.R"
     threads: 1
     resources:
-        time="00:10:00",
-        mem="10G",
-        mem_mb="10G"
+        time="00:20:00",
+        mem_mb=get_mem_30_10
     shell:
         r"""
         mkdir -p filter

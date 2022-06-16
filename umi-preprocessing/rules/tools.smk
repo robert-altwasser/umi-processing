@@ -7,7 +7,7 @@ rule get_refs:
         known_indels="refs/known_indels.vcf.gz",
         index="refs/known_indels.vcf.gz.tbi"
     resources:
-        mem_mb="02G",
+        mem_mb="2G",
         time="01:00:00"
     shell:
         r"""

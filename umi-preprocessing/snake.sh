@@ -12,9 +12,9 @@
 echo 'Start'
 snakemake \
     --nt \
-    --jobs 80 \
+    --jobs 60 \
     --keep-going \
-    --restart-times 1 \
+    --restart-times 3 \
     --cluster-config ~/work/umi-testing/umi-demultiplex/cluster/cluster_config.yaml \
     --profile=cubi-v1 \
     --reason \

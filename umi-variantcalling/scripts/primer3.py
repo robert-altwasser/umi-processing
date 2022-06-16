@@ -106,6 +106,7 @@ def mut2insert(mut={}, seq={}, return_none=False):
     # case SNP
     start = mut['Start'] - seq['Start']
     end = mut['End'] - seq['Start']
+    end = int(end)                           # Robert: sometimes creates floats
 
     if mut['Ref'] == "-":
         upstream = seq['seq'][:start]
@@ -113,7 +114,7 @@ def mut2insert(mut={}, seq={}, return_none=False):
         mutation = f"<<+{mut['Alt']}>>"
     else:
         upstream = seq['seq'][:start]
-        downstream = seq['seq'][end + 1:]
+        downstream = seq['seq'][end + 1:]    # May crash because "end" is float
         if mut['Alt'] == "-":
             mutation = f">∆{mut['Ref']}<"
         else:

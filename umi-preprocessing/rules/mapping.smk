@@ -17,7 +17,7 @@ rule map_reads1:
     resources:
         mem="70G",
         mem_mb="70G",
-        time="5:00:00"
+        time="9:00:00"
     shell:
         """
         picard {params.musage} SamToFastq I={input.unmapped} F=/dev/stdout INTERLEAVE=true \
@@ -26,7 +26,6 @@ rule map_reads1:
         UNMAPPED={input.unmapped} ALIGNED={params.intermediate} O={output} R={input.genome} \
         SO=coordinate ALIGNER_PROPER_PAIR_FLAGS=true MAX_GAPS=-1 ORIENTATIONS=FR VALIDATION_STRINGENCY=SILENT &> {log}
         """
-
 
 rule GroupReads:
     input:
