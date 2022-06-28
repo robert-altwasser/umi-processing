@@ -1,6 +1,3 @@
 *.bed
 refs/
-config/
-configs/
 .snakemake/
-Snakefile

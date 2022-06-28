@@ -126,7 +126,6 @@ rule combine_annotations:
         time="00:30:00"
     shell:
         r"""
-        mkdir -p filter
         Rscript {params.sd}/{params.rs} {params.wd}/{input.anno_edit} {params.wd}/{input.primer} {params.wd}/{input.hdr} {params.wd}/{output}
         """
 
@@ -145,7 +144,6 @@ rule combine_samples:
         mem_mb=get_mem_30_10
     shell:
         r"""
-        mkdir -p filter
         Rscript {params.sd}/{params.rs} {params.wd}/filter {params.wd}/{output}
         """
 

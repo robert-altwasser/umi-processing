@@ -9,24 +9,27 @@ rule map_reads1:
         temp("mapped/{sample}.woconsensus.bam")
     params:
         musage=config["picard"]["memoryusage"],
-        intermediate=temporary("mapped/unmerged/{sample}.woconsensus.bam")
     log:
         "logs/mapping/{sample}.woconsensus.log"
     threads:
         8
     resources:
-        mem="70G",
         mem_mb="70G",
-        time="9:00:00"
+        time="20:00:00"
     shell:
         """
         picard {params.musage} SamToFastq I={input.unmapped} F=/dev/stdout INTERLEAVE=true \
-        | bwa mem -p -t 8 {input.genome} /dev/stdin > {params.intermediate} 
-        picard {params.musage} MergeBamAlignment \
-        UNMAPPED={input.unmapped} ALIGNED={params.intermediate} O={output} R={input.genome} \
-        SO=coordinate ALIGNER_PROPER_PAIR_FLAGS=true MAX_GAPS=-1 ORIENTATIONS=FR VALIDATION_STRINGENCY=SILENT &> {log}
+        | bwa mem -p -t 8 {input.genome} /dev/stdin\
+        | picard {params.musage} MergeBamAlignment \
+        UNMAPPED={input.unmapped} ALIGNED=/dev/stdin O={output} R={input.genome} \
+        SO=coordinate ALIGNER_PROPER_PAIR_FLAGS=true MAX_GAPS=-1 ORIENTATIONS=FR VALIDATION_STRINGENCY=SILENT
         """
 
+        # picard {params.musage} SamToFastq I={input.unmapped} F=/dev/stdout INTERLEAVE=true \
+        # | bwa mem -p -t 8 {input.genome} /dev/stdin > {params.intermediate} 
+        # picard {params.musage} MergeBamAlignment \
+        # UNMAPPED={input.unmapped} ALIGNED={params.intermediate} O={output} R={input.genome} \
+        # SO=coordinate ALIGNER_PROPER_PAIR_FLAGS=true MAX_GAPS=-1 ORIENTATIONS=FR VALIDATION_STRINGENCY=SILENT &> {log}
 rule GroupReads:
     input:
         "mapped/{sample}.woconsensus.bam"

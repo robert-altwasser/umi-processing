@@ -1,31 +1,25 @@
-### increase memory to 10x the attempt
-def myrule_mem(wildcards, attempt):
-    mem = 50 * attempt
-    return '%dG' % mem
-
-
 rule basecalls_to_fastq:
      input:
          basecalls=config["illumina"]["basecall_dir"],
          SampleSheet=config["general"]["SampleSheet"]
      output:
-          "logs/demux/done.txt"
-          #expand("bcl2fastq/{sample}._S*.fastq.gz", sample=SAMPLES)
+          # "logs/demux/done.txt"
+          expand("reads/{sample}._S*.fastq.gz", sample=SAMPLES)
      params:
          rstructure=config["illumina"]["readstructure"],
-     threads: 50
+     threads: 30
      resources:
          mem="70G",
          mem_mb="70G",
-         time="5:00:00"
+         time="4:00:00"
      log:
          "logs/bcl2fastq/bcl2fastq.txt"
      shell:
          """
          bcl2fastq \
-         --input-dir {input.basecalls} \
+                    --input-dir {input.basecalls} \
                     --runfolder-dir {input.basecalls}/../../../ \
-                    --output-dir bcl2fastq \
+                    --output-dir reads \
                     --sample-sheet {input.SampleSheet} \
                     --barcode-mismatches 1 \
                     --loading-threads 6 \
@@ -36,21 +30,22 @@ rule basecalls_to_fastq:
                     --mask-short-adapter-reads 0 \
                     --create-fastq-for-index-reads \
                     --use-bases-mask {params.rstructure}
-         touch {output}
          """
 
 def get_fq(wildcards):
     # code that returns a list of fastq files  based on *wildcards.sample* e.g.
-    return sorted(glob.glob("bcl2fastq/" + wildcards.sample + '_S*.fastq.gz'))
+    return sorted(glob.glob("reads/" + wildcards.sample + '_S*.fastq.gz'))
 
 rule fastq_to_bam:
     input:
         fastq=get_fq,
-        basecall_done="logs/demux/done.txt"
+        # basecall_done="logs/demux/done.txt"
     output:
-        temp("unmapped/unsorted/{sample}.unmapped_unsorted.bam")
+        "unmapped/{sample}.unmapped.bam"
+        # temp("unmapped/unsorted/{sample}.unmapped_unsorted.bam")
     params:
-         sampleName = "{sample}"
+         sampleName = "{sample}",
+         readstructure = config["fgbio"]["readstructure"]
     log:
         "logs/fgbio/FastqToBam_{sample}.log"
     resources:
@@ -61,8 +56,9 @@ rule fastq_to_bam:
         """
         fgbio FastqToBam \
         --input {input.fastq} \
-        --read-structures 8B 8B 148T 9M 148T \
+        --read-structures {params.readstructure} \
         --output {output} \
+        --sort true \
         --sample {params.sampleName} \
         --library=illumina &> {log}
         """

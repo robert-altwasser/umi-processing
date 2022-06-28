@@ -13,12 +13,12 @@ echo 'Start'
 snakemake \
     --nt \
     --jobs 60 \
-    --keep-going \
-    --restart-times 3 \
+    --restart-times 0 \
     --cluster-config ~/work/umi-testing/umi-demultiplex/cluster/cluster_config.yaml \
     --profile=cubi-v1 \
-    --reason \
     --printshellcmds \
     --use-conda --rerun-incomplete --conda-prefix=/fast/users/altwassr_c/work/conda-envs/
+#    --reason \
+    # --keep-going \
 echo 'Finished'
 

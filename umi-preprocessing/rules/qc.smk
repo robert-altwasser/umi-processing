@@ -79,44 +79,32 @@ rule multiqc_alignments:
     input:
         expand("qc/{ctype}/{sample}.{ftype}.txt", sample=SAMPLES, ctype=["samtools-stats","hs_metrics"], ftype=["consensusreads","woconsensus","filtered","realigned"])
     output:
-        report("qc/multiqc_alignments.html", caption="../report/multiqc_alignments.rst", category="Quality control")
+        "qc/multiqc_alignments.html"
     log:
-        "logs/multiqc.log"
+        "logs/multiqc/alignment.log"
+    params:
+        "--interactive  --cl_config 'max_table_rows: 10000'"
     resources:
         mem_mb=get_mem_20_10,
         time="01:00:00"
-    wrapper:
-         "v1.0.0/bio/multiqc"
-
-
-# rule multiqc_reads:
-#     input:
-#         expand("qc/fastqc/{sample}.{ftype}_fastqc.zip", sample=SAMPLES, ftype=["R1","R2"])
-#     output:
-#         report("qc/multiqc_reads.html", caption="../report/multiqc_reads.rst", category="Quality control")
-#     log:
-#         "logs/multiqc.log"
-#     params:
-#         "--interactive"
-#     resources:
-#         mem_mb="100G",
-#         time="01:00:00"
-#     shell:
-#         """
-#          multiqc {params} --force -o {output}  {input} &> {log}
-#         """
+    shell:
+        """
+            multiqc {params} --force -o qc -n multiqc_alignments {input} 2> {log}
+        """
 
 rule multiqc_reads:
     input:
         expand("qc/fastqc/{sample}.{ftype}_fastqc.zip", sample=SAMPLES, ftype=["R1","R2"])
     output:
-        report("qc/multiqc_reads.html", caption="../report/multiqc_reads.rst", category="Quality control")
+        "qc/multiqc_reads.html"
     log:
-        "logs/multiqc.log"
+        "logs/multiqc/reads.log"
     params:
         "--interactive  --cl_config 'max_table_rows: 1000'"
     resources:
         mem_mb=get_mem_20_10,
         time="01:00:00"
-    wrapper:
-         "v1.0.0/bio/multiqc"
+    shell:
+        """
+            multiqc {params} --force -o qc -n multiqc_reads {input} 2> {log}
+        """
