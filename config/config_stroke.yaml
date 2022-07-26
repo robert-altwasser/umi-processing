@@ -1,0 +1,25 @@
+general:
+  work_dir: "/fast/users/altwassr_c/scratch/P1122/preprocessing/"
+  region_file: "/fast/users/altwassr_c/work/refs/DKMS_v5_CHIPpanel_hg38.bed"
+  barcode_file: "/fast/users/altwassr_c/scratch/data/P1122/P1122_barcode2.csv"
+  library_file: "/fast/users/altwassr_c/scratch/data/P1122/library_params2.txt"
+  demux: TRUE
+
+reference:  
+  genome: "/fast/users/altwassr_c/work/refs/GRCh38.u2af1_fix.v1.2020_04_01.fa"
+  known_indels: "/fast/users/altwassr_c/work/refs/known_indels.vcf.gz"
+
+illumina:
+  basecall_dir: "/fast/users/altwassr_c/scratch/data/P1122/210819_A00643_0296_AHF37FDRXY/Data/Intensities/BaseCalls/"
+  readstructure: "148T8B9M8B148T"
+  runbarcode: "2020"
+  lane: "2"
+
+picard:
+  memoryusage: "-Xmx64g -Xms64g"
+
+fgbio:
+  groupreads: "-s adjacency"
+  callconsensus: "-M 3"
+  fextra: ""
+  fminq: 5
