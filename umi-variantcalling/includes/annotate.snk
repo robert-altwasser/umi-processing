@@ -15,7 +15,7 @@ rule annovar:
     params:
         annovar = config['tools']['annovar'],
         anno = get_anno_params,
-        sd = config['snakedir'],
+        sd = config["general"]['snakedir'],
         anno_info = f"scripts/shell/sed.cmd"
     shell:
         r"""
@@ -25,30 +25,50 @@ rule annovar:
         rm {output.tmp}.hg38_multianno.txt
         """
 
-rule ebfilter:
-    input:
-        sample = lambda wildcards: input_bam[wildcards.sample],
-        vcf = "vardict/{sample}.vcf"
-    output:
-        vcf = "vardict/{sample}_EB.vcf",
-        txt = "vardict/{sample}_EB.txt"
-    log:
-        "logs/EBFilter/{sample}.log"
-    threads:
-        4
-    resources:
-        time=get_time_3_1,
-        mem=get_mem_30_10,
-        mem_mb=get_mem_30_10
-    conda:
-        "../env/EBFilter-env.yml"
-    params:
-        normals = config['edit']['normals']
-    shell:
-        r"""
-        EBFilter -f vcf -t {threads} {input.vcf} {input.sample} {params.normals} {output.vcf}
-        bcftools query -f '[%EB]\n' {output.vcf} > {output.txt} 2>/dev/null
-        """
+if config["general"]["control"]:
+    rule ebfilter:
+        input:
+            sample = lambda wildcards: input_bam[wildcards.sample],
+            vcf = "vardict/{sample}.vcf"
+        output:
+            vcf = "vardict/{sample}_EB.vcf",
+            txt = "vardict/{sample}_EB.txt"
+        log:
+            "logs/EBFilter/{sample}.log"
+        threads:
+            4
+        resources:
+            time=get_time_3_1,
+            mem=get_mem_30_10,
+            mem_mb=get_mem_30_10
+        conda:
+            "../env/EBFilter-env.yml"
+        params:
+            normals = config['edit']['normals']
+        shell:
+            r"""
+            EBFilter -f vcf -t {threads} {input.vcf} {input.sample} {params.normals} {output.vcf}
+            bcftools query -f '[%EB]\n' {output.vcf} > {output.txt} 2>/dev/null
+            """
+else:
+    rule fake_ebfilter:
+        input:
+            vcf = "vardict/{sample}.vcf"
+        output:
+            txt = "vardict/{sample}_EB.txt"
+        log:
+            "logs/EBFilter/{sample}.log"
+        threads:
+            1
+        resources:
+            time=get_time_1_1,
+            mem_mb="10G"
+        run:
+           with open(input.vcf, "r") as input_file:
+              vcf_lines = sum(1 for line in input_file if not line.startswith("#"))
+           
+           with open(output.txt, "w") as output_file:
+              output_file.write("\n".join(["NaN"] * vcf_lines))
 
 rule add_ebfilter:
     input:
@@ -61,8 +81,8 @@ rule add_ebfilter:
     resources:
         time="00:30:00"
     params:
-        wd = config['workdir'],
-        sd = config['snakedir'],
+        wd = config["general"]["work_dir_variantcalling"],
+        sd = config["general"]['snakedir'],
         rs = f"scripts/AddParameters.R",
         candidate = config['edit']['candidate_list'],
         driver = config['edit']['driver_list'],
@@ -118,8 +138,8 @@ rule combine_annotations:
     output: 
         "filter/{sample}.edit.csv"
     params: 
-        wd = config['workdir'],
-        sd = config['snakedir'],
+        wd = config["general"]["work_dir_variantcalling"],
+        sd = config["general"]['snakedir'],
         rs = f"scripts/CombineAnno.R"
     threads: 1
     resources:
@@ -135,8 +155,8 @@ rule combine_samples:
     output: 
         "filter/variantcalls.csv"
     params: 
-        wd = config['workdir'],
-        sd = config['snakedir'],
+        wd = config["general"]["work_dir_variantcalling"],
+        sd = config["general"]['snakedir'],
         rs = f"scripts/MergeCalls.R"
     threads: 1
     resources:

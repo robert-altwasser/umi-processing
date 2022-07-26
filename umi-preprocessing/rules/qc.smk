@@ -18,7 +18,6 @@ rule get_fastqc_input:
         picard {params.musage} SamToFastq I={input} F={output.read1} SECOND_END_FASTQ={output.read2} &> {log}
         """
 
-
 rule fastqc:
     input:
         "reads/{sample}.{read}.fastq"
@@ -40,7 +39,7 @@ rule samtools_stats:
     input:
         "mapped/{sample}.{type}.bam"
     params:
-        extra=" ".join(["-t",config["general"]["region_file"]]),
+        extra=" ".join(["-t",config["reference"]["region_file"]]),
         region=""
     output:
         "qc/samtools-stats/{sample}.{type}.txt"
@@ -68,7 +67,7 @@ rule picard_collect_hs_metrics:
         # to reduce the runtime in our unit test.
         extra="--SAMPLE_SIZE 1000"
     log:
-        "logs/picard_collect_hs_metrics/{sample}.{type}.log"
+        "logs/picard/collect_hs_metrics/{sample}.{type}.log"
     resources:
         time="00:30:00"
     wrapper:
@@ -77,34 +76,52 @@ rule picard_collect_hs_metrics:
 
 rule multiqc_alignments:
     input:
-        expand("qc/{ctype}/{sample}.{ftype}.txt", sample=SAMPLES, ctype=["samtools-stats","hs_metrics"], ftype=["consensusreads","woconsensus","filtered","realigned"])
+        expand("qc/hs_metrics/{sample}.realigned.txt", sample=SAMPLES )
     output:
         "qc/multiqc_alignments.html"
     log:
         "logs/multiqc/alignment.log"
     params:
-        "--interactive  --cl_config 'max_table_rows: 10000'"
+        "--interactive --force --no-ansi --cl_config 'max_table_rows: 10000'"
     resources:
         mem_mb=get_mem_20_10,
         time="01:00:00"
     shell:
         """
-            multiqc {params} --force -o qc -n multiqc_alignments {input} 2> {log}
+            multiqc {params} -o qc -n multiqc_alignments qc/samtools-stats/ qc/hs_metrics/
         """
 
 rule multiqc_reads:
     input:
-        expand("qc/fastqc/{sample}.{ftype}_fastqc.zip", sample=SAMPLES, ftype=["R1","R2"])
+        expand("qc/fastqc/{sample}.R1_fastqc.zip", sample=SAMPLES, reads=["R1","R2"])
     output:
         "qc/multiqc_reads.html"
     log:
         "logs/multiqc/reads.log"
     params:
-        "--interactive  --cl_config 'max_table_rows: 1000'"
+        "--interactive --force --no-ansi --quiet --cl_config 'max_table_rows: 10000'"
     resources:
-        mem_mb=get_mem_20_10,
+        mem_mb="60G",
         time="01:00:00"
     shell:
         """
-            multiqc {params} --force -o qc -n multiqc_reads {input} 2> {log}
+           multiqc {params} -o qc -n multiqc_reads qc/fastqc/*.zip
         """
+
+# rule multiqc_reads:
+#     input:
+#         expand("qc/fastqc/{sample}.{ftype}_fastqc.zip", sample=SAMPLES, ftype=["R1","R2"])
+#     output:
+#         "qc/multiqc_reads.html"
+#     log:
+#         "logs/multiqc/reads.log"
+#     params:
+#         "",
+#         # "--interactive  --cl_config 'max_table_rows: 1000'"
+#     resources:
+#         mem_mb=get_mem_20_10,
+#         time="01:00:00"
+#     shell:
+#         """
+#             multiqc {params} --force -o qc -n multiqc_reads {input}
+#         """

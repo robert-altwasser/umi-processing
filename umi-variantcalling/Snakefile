@@ -10,18 +10,13 @@ import importlib.util
 
 # with open("configs/config_robert.yaml") as config_file:
 #     config = yaml.load(config_file)
-configfile: "configs/config1519.yaml"
+configfile: "configs/config1557.yaml"
 # configfile: "configs/config1413.yaml"
 
-workdir: config['workdir']
-
-# include helper functions
-include: "includes/io.snk"
-include: "includes/utils.snk"
-include: "includes/resources.snk"
+workdir: config["general"]["work_dir_variantcalling"]
 
 
-samples = os.listdir(config['inputdir'])
+samples = os.listdir(config["general"]["work_dir_demux"] + "/mapped")
 samples = list(filter(lambda x:'.realigned.bam' in x, samples))
 samples = list(filter(lambda x:'.bai' not in x, samples)) ### ROBERT: otherwise index files stay in Samples
 samples = [s.replace('.realigned.bam', '') for s in samples]
@@ -31,10 +26,15 @@ list(filter(lambda x:'.bai' in x, samples))
 file_ending = ".realigned.bam"
 input_bam = {}
 for sample in samples:
-    input_bam[sample] = ''.join([config['inputdir'], '/', sample, file_ending])
+    input_bam[sample] = ''.join([config["general"]["work_dir_demux"], "/mapped", '/', sample, file_ending])
 
 
 # ############ INCLUDES ##############################
+# include helper functions
+include: "includes/io.snk"
+include: "includes/utils.snk"
+include: "includes/resources.snk"
+
 include: "includes/variantcalling.snk"
 include: "includes/annotate.snk"
 include: "includes/filterbam.snk"
@@ -61,19 +61,3 @@ rule all:
         # expand("vardict/{sample}.vcf", sample = samples),
 
 ###########################################################################
-
-
-# print out of installed tools
-onstart:
-    #print("    TWIST TARGETED SEQUENCING PIPELINE STARTING.......")
-    ##########################
-    # shell("echo Conda-environment: $CONDA_PREFIX")
-    # shell('echo $PATH')
-    # write config to the results directory
-    path_to_config = os.path.join(config['workdir'], "config.yaml")
-    with open(path_to_config, 'w+') as stream:
-        yaml.dump(config, stream, default_flow_style=False)
-    # create logs folder
-    # shell("conda list | show_awk")
-    # shell("ls -l ${{TOOLS}}/bulltools/links | sed -nr '/->/s_.* ([^/]+ -> .*)_  \\1_p' ")
-    # create scratch/tmp/hWES folder for storing stuff

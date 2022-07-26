@@ -22,14 +22,9 @@ rule map_reads1:
         | bwa mem -p -t 8 {input.genome} /dev/stdin\
         | picard {params.musage} MergeBamAlignment \
         UNMAPPED={input.unmapped} ALIGNED=/dev/stdin O={output} R={input.genome} \
-        SO=coordinate ALIGNER_PROPER_PAIR_FLAGS=true MAX_GAPS=-1 ORIENTATIONS=FR VALIDATION_STRINGENCY=SILENT
+        SO=coordinate ALIGNER_PROPER_PAIR_FLAGS=true MAX_GAPS=-1 ORIENTATIONS=FR VALIDATION_STRINGENCY=SILENT &> {log}
         """
 
-        # picard {params.musage} SamToFastq I={input.unmapped} F=/dev/stdout INTERLEAVE=true \
-        # | bwa mem -p -t 8 {input.genome} /dev/stdin > {params.intermediate} 
-        # picard {params.musage} MergeBamAlignment \
-        # UNMAPPED={input.unmapped} ALIGNED={params.intermediate} O={output} R={input.genome} \
-        # SO=coordinate ALIGNER_PROPER_PAIR_FLAGS=true MAX_GAPS=-1 ORIENTATIONS=FR VALIDATION_STRINGENCY=SILENT &> {log}
 rule GroupReads:
     input:
         "mapped/{sample}.woconsensus.bam"
@@ -41,7 +36,7 @@ rule GroupReads:
     resources:
         mem="10G",
         mem_mb="10G",
-        time="20:00:00"
+        time="02:00:00"
     log:
         "logs/fgbio/group_reads/{sample}.log"
     wrapper:
@@ -58,7 +53,7 @@ rule ConsensusReads:
     resources:
         mem="10G",
         mem_mb="10G",
-        time="20:00:00"
+        time="02:00:00"
     log:
         "logs/fgbio/consensus_reads/{sample}.log"
     wrapper:
@@ -81,9 +76,9 @@ rule map_reads2:
     threads:
         8
     resources:
-        mem="70G",
-        mem_mb="70G",
-        time="20:00:00"
+        mem="50G",
+        mem_mb="50G",
+        time="02:00:00"
     shell:
         r"""
         picard {params.musage} SamToFastq I={input.unmapped} F=/dev/stdout INTERLEAVE=true \
@@ -117,7 +112,7 @@ rule FilterConsensusReads:
 rule realignertargetcreator:
     input:
         bam="mapped/{sample}.filtered.bam",
-        bed=config["general"]["region_file"],
+        bed=config["reference"]["region_file"],
         ref="refs/genome.fasta",
         known="refs/known_indels.vcf.gz"
     output:
@@ -131,7 +126,7 @@ rule realignertargetcreator:
     resources:
         mem="70G",
         mem_mb="70G",
-        time="20:00:00"
+        time="02:00:00"
     shell:
         r"""
         gatk3 {params.java_opts} -T RealignerTargetCreator {params.extra} -nt {threads} -I {input.bam} -R {input.ref} -known {input.known} -L {input.bed} -o {output} &> {log}
@@ -141,7 +136,7 @@ rule realignertargetcreator:
 rule indelrealigner:
     input:
         bam="mapped/{sample}.filtered.bam",
-        bed=config["general"]["region_file"],
+        bed=config["reference"]["region_file"],
         ref="refs/genome.fasta",
         known="refs/known_indels.vcf.gz",
         target_intervals="realigned/{sample}.intervals"

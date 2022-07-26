@@ -38,13 +38,10 @@ properties:
       type: string
     runbarcode:
       type: string
-    lane:
-      type: string
     required:
       - basecall_dir
       - readstructure
       - runbarcode
-      - lane
 
   picard:
     memoryusage:

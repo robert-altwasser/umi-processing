@@ -22,27 +22,23 @@ from snakemake.utils import min_version
 
 min_version("5.7.1")
 
-configfile: "config/config1519.yaml"
+configfile: "config/config1557.yaml"
 validate(config, schema="schemas/config.schema.yaml")
 
-workdir: config["general"]["work_dir"]
+workdir: config["general"]["work_dir_demux"]
 
 ### Dict mapping samples to lanes
 df = pd.read_csv(config["general"]["SampleSheet"], sep = ',', skiprows=13)
 SAMPLES = list(df.iloc[:,1])
 
-print(SAMPLES)
+# print(SAMPLES)
 rule all:
     input:
         expand("unmapped/{sample}.unmapped.bam", sample=SAMPLES),
-        "qc/multiqc_reads.html",
+        # "qc/multiqc_reads.html",
         # "qc/multiqc_alignments.html"
         # "unmapped/4-B7.unmapped.bam"
-        # expand("reads/{sample}._S*.fastq.gz", sample=SAMPLES)
-        # expand("unmapped/{sample}.unmapped.bam", sample=SAMPLES)
-        #expand("bcl2fastq_2/{sample}._S*.fastq.gz", sample=SAMPLES)
-        # expand("lane_{lane}/{sample}_lane_{lane}.txt", sample=SAMPLES, lane=LANES)
-        # expand("logs/picard/IlluminaBasecallsToSam_done{lane}.log", lane=LANES)
+        # expand("reads/{sample}_S*.fastq.gz", sample=SAMPLES)
 
 # ==============================================================================
 # Include rules

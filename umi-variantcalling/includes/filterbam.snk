@@ -8,7 +8,7 @@ rule mutation_bed:
     resources:
         time="00:30:00"
     run:
-        dir_path = config['workdir']
+        dir_path = config["general"]["work_dir_variantcalling"]
         conf = config['filter_bam']
         print(f"{dir_path}/{input}")
         anno_df = pd.read_csv(f"{dir_path}/{input}", sep='\t').sort_values(['Chr', 'Start']).iloc[:,:5]
@@ -56,7 +56,7 @@ rule mpilup:
     input:
         # single or list of bam files
         bam=lambda wildcards: input_bam[wildcards.sample],
-        reference_genome=config['refgenome']
+        reference_genome=config["reference"]["genome"]
     output:
         temp("mpileup/{sample}.raw.pileup.gz")
     log:
@@ -79,7 +79,7 @@ rule filter_pileup:
     resources:
         time="00:30:00"
     params:
-        ''.join([config['snakedir'],'/scripts/shell/cleanpileup.mawk'])
+        ''.join([config["general"]['snakedir'],'/scripts/shell/cleanpileup.mawk'])
     shell:
         r"""
         mkdir -p pileup

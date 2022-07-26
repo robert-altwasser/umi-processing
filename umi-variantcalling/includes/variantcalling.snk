@@ -15,21 +15,19 @@
 #     wrapper:
 #         "0.78.0/bio/vardict"
 
-
-
 rule vardict:
     input:
-        ref=config['refgenome'],
+        ref=config["reference"]['genome'],
         # you can have a list of samples here
         samples=lambda wildcards: input_bam[wildcards.sample],
         # optional BED file specifying chromosomal regions on which freebayes
         # should run, e.g. all regions that show coverage
-        regions=config["bedfile"],
+        regions=config["reference"]["region_file"],
     output:
         "vardict/{sample}.vcf"
     params:
         extra="-c 1 -S 2 -E 3 -g 4",
-        vaf=0.001
+        vaf=config["vardict"]["vaf"]
     resources:
         time=get_time_2_1
     conda:
@@ -71,7 +69,7 @@ rule norm_vcf:
     output:
         "vardict/{sample}.norm.vcf.gz"
     params:
-        extra=''.join(['-f ', config['refgenome']])  # optional parameters for bcftools norm (except -o)
+        extra=''.join(['-f ', config["reference"]['genome']])  # optional parameters for bcftools norm (except -o)
     resources:
         time="00:30:00"
     wrapper:
@@ -84,8 +82,8 @@ rule vcf_to_table:
     output:
         "vardict/{sample}.csv"
     params:
-        wd = config['workdir'],
-        sd = config['snakedir'],
+        wd = config["general"]['work_dir_variantcalling'],
+        sd = config["general"]['snakedir'],
         rs = f"scripts/Vcf2Table.R",
     resources:
         time="00:30:00"
@@ -106,8 +104,8 @@ rule table_to_anno:
     resources:
         time="00:30:00"
     params:
-        wd = config['workdir'],
-        sd = config['snakedir'],
+        wd = config["general"]['work_dir_variantcalling'],
+        sd = config["general"]['snakedir'],
         rs = f"scripts/SplitTable.R",
     shell:
         r"""

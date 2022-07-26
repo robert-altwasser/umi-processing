@@ -1,8 +1,36 @@
-inputdir: "/fast/users/altwassr_c/scratch/P1519/demux/mapped"
-workdir: "/fast/users/altwassr_c/scratch/P1519/variantcalling/"
-snakedir: "/fast/users/altwassr_c/work/umi-testing/umi-variantcalling/"
-bedfile: "/fast/users/altwassr_c/work/refs/merged_probe_file_DKMS_v5-hrd_1X_1p5X_hg38.bed"
-refgenome: "/fast/users/altwassr_c/work/refs/GRCh38.u2af1_fix.v1.2020_04_01.fa"
+general:
+  work_dir_demux: "/data/gpfs-1/users/altwassr_c/scratch/P1519_2/demux"
+  work_dir_variantcalling: "/fast/users/altwassr_c/scratch/P1519_2/variantcalling/"
+  snakedir: "/fast/users/altwassr_c/work/umi-testing/umi-variantcalling/"
+  SampleSheet: "/data/gpfs-1/users/altwassr_c/scratch/data/P1519/SampleSheet_v2_template.csv"
+  tmp_dir: "/data/gpfs-1/users/altwassr_c/scratch/tmp"
+  refgenome: "/fast/users/altwassr_c/work/refs/GRCh38.u2af1_fix.v1.2020_04_01.fa"
+  demux: TRUE
+
+reference:  
+  genome: "/fast/users/altwassr_c/work/refs/GRCh38.u2af1_fix.v1.2020_04_01.fa"
+  known_indels: "/fast/users/altwassr_c/work/umi-data-processing/umi-preprocessing/refs/dbsnp.vcf.gz"
+  bedfile: "/fast/users/altwassr_c/work/refs/merged_probe_file_DKMS_v5-hrd_1X_1p5X_hg38.bed"
+  region_file: "/fast/users/altwassr_c/work/refs/merged_probe_file_DKMS_v5-hrd_1X_1p5X_hg38.bed"
+
+illumina:
+  basecall_dir: "/data/gpfs-1/users/altwassr_c/scratch/data/P1519/220609_A00643_0490_AH23CGDSX2/Data/Intensities/BaseCalls/"
+  readstructure: "Y150,I8Y9,I8Y8,Y150"
+  runbarcode: "2022"
+  #lane: ["1","2"]
+
+picard:
+  memoryusage: "-Xmx64g -Xms64g"
+
+vardict:
+  vaf: 0.001
+
+fgbio:
+  groupreads: "-s adjacency"
+  callconsensus: "-M 3"
+  fextra: ""
+  fminq: 5
+  readstructure: "8B 8B 150T 9M 150T"
 
 #### ABSOLUTE PATHS ############
 paths:

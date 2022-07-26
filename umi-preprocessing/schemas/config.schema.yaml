@@ -66,6 +66,82 @@ properties:
       - callconsensus
       - fextra
       - fminq  
+################
+paths:
+  mystatic: 
+    type: string
+  bihstatic: 
+    type: string
+  scripts: 
+    type: string
+
+#### TOOLS SECTION ##############
+tools:
+  annovar: 
+    type: string
+mpileup:
+  Q: 
+    type: integer
+    description: base quality
+  MAPQ: 
+    type: integer
+    description: -q in pileup
+annovar:
+  build: 
+    type: string
+  path_to_humandb:
+      type: string
+  annofiles:
+    type: list
+edit:
+  extended_output: 
+    type: boolean
+  candidate_list: 
+    type: string
+  driver_list: 
+    type: string
+  CHIP_list: 
+    type: string
+  normals: 
+    type: string
+filter_bam:
+    threads: 
+      type: integer
+    stringency_for_IGVnav: 
+      type: string
+    padding: 
+      type: integer
+    folder: 
+      type: string
+primer3:  # is applied after filter step 1
+  threads: 
+    type: integer
+  min_size: 
+    type: integer
+  max_size: 
+    type: integer
+  center_offSet: 
+    type: integer
+    description: how much offSet primer pairs can
+  use_primer_list: 
+    type: string
+  split: 
+    type: string
+HDR:
+  threads: 
+    type: integer
+  min_HDR_count: 
+    type: integer
+    description: minimum lanes around mutation to make it a putative HDR
+  min_similarity: 
+    type: integer
+    description: which similarities to consider as HDR
+  padding: 
+    type: integer
+    description: range around mutation to be scanned
+  min_q: 
+    type: integer
+    description: minimum base quality to be used for HDR-calculation
 
 required:
   - general

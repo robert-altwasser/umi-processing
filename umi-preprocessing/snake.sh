@@ -9,16 +9,19 @@
 #SBATCH --output=/fast/users/altwassr_c/scratch/slurm_logs/%x.%j.out
 #SBATCH --error=/fast/users/altwassr_c/scratch/slurm_logs/%x.%j.err
 
-echo 'Start'
 snakemake \
     --nt \
     --jobs 60 \
     --restart-times 0 \
-    --cluster-config ~/work/umi-testing/umi-demultiplex/cluster/cluster_config.yaml \
+    --cluster-config ~/work/umi-testing/umi-demultiplex/config/cluster_config.yaml \
     --profile=cubi-v1 \
+    --use-conda \
+    --until multiqc_reads \
     --printshellcmds \
-    --use-conda --rerun-incomplete --conda-prefix=/fast/users/altwassr_c/work/conda-envs/
+    --rerun-incomplete \
+    --scheduler greedy \
+    --conda-prefix=/fast/users/altwassr_c/work/conda-envs/ 
 #    --reason \
-    # --keep-going \
-echo 'Finished'
 
+    # --verbose \
+    # --keep-going \

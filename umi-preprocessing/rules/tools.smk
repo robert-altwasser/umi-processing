@@ -71,12 +71,12 @@ rule samtools_index:
 
 rule bed_to_interval_list:
     input:
-        bed=config["general"]["region_file"],
+        bed=config["reference"]["region_file"],
         dict="refs/genome.dict"
     output:
         "refs/region.intervals"
     log:
-        "logs/picard/bedtointervallist/a.log"
+        "logs/picard/bedtointervallist.log"
     params:
         # optional parameters
         extra="--SORT true", # sort output interval list before writing

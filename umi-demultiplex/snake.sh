@@ -14,12 +14,14 @@ snakemake \
     -r \
     --nt \
     --jobs 40 \
-    --restart-times 2 \
     --keep-going \
+    --restart-times 2 \
     --profile=cubi-v1 \
-    --cluster-config ~/work/umi-testing/umi-demultiplex/cluster/cluster_config.yaml \
+    --cluster-config ~/work/umi-testing/umi-demultiplex/config/cluster_config.yaml \
     --use-conda -p --rerun-incomplete --conda-prefix=/fast/users/altwassr_c/work/conda-envs/
 echo 'Finished'
 
 
     #--dry-run \
+    # --restart-times 2 \
+    # --reason \
