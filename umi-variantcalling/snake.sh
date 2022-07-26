@@ -14,7 +14,7 @@
 snakemake \
     --nt \
     --jobs 60 \
-    --cluster-config ~/work/umi-testing/umi-variantcalling/cluster/cluster_config.yaml \
+    --cluster-config ~/work/umi-testing/config/cluster_config.yaml \
     --profile=cubi-v1 \
     --restart-times 2 \
     --keep-going \

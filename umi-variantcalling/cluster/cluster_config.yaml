@@ -1,5 +1,0 @@
-__default__:
-    output: logs/slurm/{rule}/%j.out
-    error:  logs/slurm/{rule}/%j.err
-    job-name: a_{rule}_%j
-

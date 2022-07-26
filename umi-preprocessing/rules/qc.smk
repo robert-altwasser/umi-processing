@@ -76,24 +76,24 @@ rule picard_collect_hs_metrics:
 
 rule multiqc_alignments:
     input:
-        expand("qc/hs_metrics/{sample}.realigned.txt", sample=SAMPLES )
+        expand("qc/{ctype}/{sample}.{ftype}.txt", sample=SAMPLES, ctype=["samtools-stats","hs_metrics"], ftype=["consensusreads","woconsensus","filtered","realigned"])
     output:
         "qc/multiqc_alignments.html"
     log:
         "logs/multiqc/alignment.log"
     params:
-        "--interactive --force --no-ansi --cl_config 'max_table_rows: 10000'"
+        "--interactive  --cl_config 'max_table_rows: 10000'"
     resources:
         mem_mb=get_mem_20_10,
         time="01:00:00"
     shell:
         """
-            multiqc {params} -o qc -n multiqc_alignments qc/samtools-stats/ qc/hs_metrics/
+            multiqc {params} -o qc -n multiqc_alignments {input}
         """
 
 rule multiqc_reads:
     input:
-        expand("qc/fastqc/{sample}.R1_fastqc.zip", sample=SAMPLES, reads=["R1","R2"])
+        expand("qc/fastqc/{sample}.{reads}_fastqc.zip", sample=SAMPLES, reads=["R1","R2"])
     output:
         "qc/multiqc_reads.html"
     log:
@@ -101,13 +101,12 @@ rule multiqc_reads:
     params:
         "--interactive --force --no-ansi --quiet --cl_config 'max_table_rows: 10000'"
     resources:
-        mem_mb="60G",
+        mem_mb="20G",
         time="01:00:00"
     shell:
         """
-           multiqc {params} -o qc -n multiqc_reads qc/fastqc/*.zip
+           multiqc {params} -o qc -n multiqc_reads {input}
         """
-
 # rule multiqc_reads:
 #     input:
 #         expand("qc/fastqc/{sample}.{ftype}_fastqc.zip", sample=SAMPLES, ftype=["R1","R2"])

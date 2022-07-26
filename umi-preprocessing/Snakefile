@@ -19,16 +19,12 @@ from snakemake.utils import min_version
 
 min_version("5.7.1")
 
-# configfile: "config_stroke.yaml"
-# configfile: "config/config1413_aml.yaml"
-# configfile: "config1156.yaml"
-configfile: "config/config1557.yaml"
-# validate(config, schema="schemas/config.schema.yaml")
+configfile: "../config/config1557.yaml"
+validate(config, schema="schemas/config.schema.yaml")
 
 SAMPLES = os.listdir(config["general"]["work_dir_demux"] +"/unmapped/")
 SAMPLES = list(filter(lambda x:'.unmapped.bam' in x, SAMPLES))
 SAMPLES = [s.replace('.unmapped.bam', '') for s in SAMPLES]
-SAMPLES = list(filter(lambda x:'Tempus-BL-0' in x, SAMPLES))
 # SAMPLES.remove("AML-175_newprep")
 # SAMPLES = "4-B7"
 

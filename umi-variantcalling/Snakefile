@@ -8,13 +8,9 @@ import importlib.util
 
 # ############ SETUP ##############################
 
-# with open("configs/config_robert.yaml") as config_file:
-#     config = yaml.load(config_file)
-configfile: "configs/config1557.yaml"
-# configfile: "configs/config1413.yaml"
+configfile: "../config/config1557.yaml"
 
 workdir: config["general"]["work_dir_variantcalling"]
-
 
 samples = os.listdir(config["general"]["work_dir_demux"] + "/mapped")
 samples = list(filter(lambda x:'.realigned.bam' in x, samples))
@@ -31,13 +27,13 @@ for sample in samples:
 
 # ############ INCLUDES ##############################
 # include helper functions
-include: "includes/io.snk"
-include: "includes/utils.snk"
-include: "includes/resources.snk"
+include: "rules/io.snk"
+include: "rules/utils.snk"
+include: "rules/resources.snk"
 
-include: "includes/variantcalling.snk"
-include: "includes/annotate.snk"
-include: "includes/filterbam.snk"
+include: "rules/variantcalling.snk"
+include: "rules/annotate.snk"
+include: "rules/filterbam.snk"
 
 
 # specified wildcards have to match the regex

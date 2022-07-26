@@ -13,7 +13,7 @@ snakemake \
     --nt \
     --jobs 60 \
     --restart-times 0 \
-    --cluster-config ~/work/umi-testing/umi-demultiplex/config/cluster_config.yaml \
+    --cluster-config ~/work/umi-testing/config/cluster_config.yaml \
     --profile=cubi-v1 \
     --use-conda \
     --until multiqc_reads \

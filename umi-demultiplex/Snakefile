@@ -22,7 +22,7 @@ from snakemake.utils import min_version
 
 min_version("5.7.1")
 
-configfile: "config/config1557.yaml"
+configfile: "../config/config1557.yaml"
 validate(config, schema="schemas/config.schema.yaml")
 
 workdir: config["general"]["work_dir_demux"]
