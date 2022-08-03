@@ -88,7 +88,7 @@ rule multiqc_alignments:
         time="01:00:00"
     shell:
         """
-            multiqc {params} -o qc -n multiqc_alignments {input}
+            multiqc {params} --force -o qc -n multiqc_alignments {input}
         """
 
 rule multiqc_reads:
@@ -99,28 +99,11 @@ rule multiqc_reads:
     log:
         "logs/multiqc/reads.log"
     params:
-        "--interactive --force --no-ansi --quiet --cl_config 'max_table_rows: 10000'"
+        "--interactive --force --cl_config 'max_table_rows: 10000'"
     resources:
         mem_mb="20G",
         time="01:00:00"
     shell:
         """
-           multiqc {params} -o qc -n multiqc_reads {input}
+           multiqc {params} -o qc -n multiqc_reads qc/fastqc/ >> {log} 2>&1
         """
-# rule multiqc_reads:
-#     input:
-#         expand("qc/fastqc/{sample}.{ftype}_fastqc.zip", sample=SAMPLES, ftype=["R1","R2"])
-#     output:
-#         "qc/multiqc_reads.html"
-#     log:
-#         "logs/multiqc/reads.log"
-#     params:
-#         "",
-#         # "--interactive  --cl_config 'max_table_rows: 1000'"
-#     resources:
-#         mem_mb=get_mem_20_10,
-#         time="01:00:00"
-#     shell:
-#         """
-#             multiqc {params} --force -o qc -n multiqc_reads {input}
-#         """

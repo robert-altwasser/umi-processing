@@ -16,6 +16,7 @@ snakemake \
     --cluster-config ~/work/umi-testing/config/cluster_config.yaml \
     --profile=cubi-v1 \
     --use-conda \
+    -w 10 \
     --until multiqc_reads \
     --printshellcmds \
     --rerun-incomplete \
