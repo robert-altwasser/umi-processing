@@ -59,7 +59,6 @@ rule ConsensusReads:
     wrapper:
         "v1.0.0/bio/fgbio/callmolecularconsensusreads"
 
-
 rule map_reads2:
     input:
         unmapped="unmapped/{sample}.consensusreads.bam",
@@ -88,7 +87,6 @@ rule map_reads2:
         SO=coordinate ALIGNER_PROPER_PAIR_FLAGS=true MAX_GAPS=-1 ORIENTATIONS=FR VALIDATION_STRINGENCY=SILENT &> {log}
         """
 
-
 rule FilterConsensusReads:
     input:
         "mapped/{sample}.consensusreads.bam"
@@ -107,7 +105,6 @@ rule FilterConsensusReads:
         time="01:00:00"
     wrapper:
         "v1.0.0/bio/fgbio/filterconsensusreads"
-
 
 rule realignertargetcreator:
     input:

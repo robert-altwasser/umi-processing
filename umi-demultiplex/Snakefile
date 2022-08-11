@@ -25,7 +25,7 @@ min_version("5.7.1")
 configfile: "../config/config1557.yaml"
 # validate(config, schema="schemas/config.schema.yaml")
 
-workdir: config["general"]["work_dir_demux"]
+workdir: config["general"]["work_dir"] + "demux/"
 
 ### Dict mapping samples to lanes
 df = pd.read_csv(config["general"]["SampleSheet"], sep = ',', skiprows=13)

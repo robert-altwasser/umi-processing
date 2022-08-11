@@ -10,9 +10,9 @@ import importlib.util
 
 configfile: "../config/config1557.yaml"
 
-workdir: config["general"]["work_dir_variantcalling"]
+workdir: config["general"]["work_dir"] + "variantcalling/"
 
-samples = os.listdir(config["general"]["work_dir_demux"] + "/mapped")
+samples = os.listdir(config["general"]["work_dir"] + "demux/mapped")
 samples = list(filter(lambda x:'.realigned.bam' in x, samples))
 samples = list(filter(lambda x:'.bai' not in x, samples)) ### ROBERT: otherwise index files stay in Samples
 samples = [s.replace('.realigned.bam', '') for s in samples]
@@ -22,14 +22,14 @@ list(filter(lambda x:'.bai' in x, samples))
 file_ending = ".realigned.bam"
 input_bam = {}
 for sample in samples:
-    input_bam[sample] = ''.join([config["general"]["work_dir_demux"], "/mapped", '/', sample, file_ending])
+    input_bam[sample] = ''.join([config["general"]["work_dir"], "demux/mapped/", sample, file_ending])
 
 
 # ############ INCLUDES ##############################
 # include helper functions
 include: "rules/io.snk"
 include: "rules/utils.snk"
-include: "rules/resources.snk"
+include: "../config/rules/resources.smk"
 
 include: "rules/variantcalling.snk"
 include: "rules/annotate.snk"
