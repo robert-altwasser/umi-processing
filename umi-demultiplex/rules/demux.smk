@@ -3,8 +3,7 @@ rule basecalls_to_fastq:
          basecalls=config["illumina"]["basecall_dir"],
          SampleSheet=config["general"]["SampleSheet"]
      output:
-          basecall_done="logs/demux/done.txt",
-          results=dynamic("reads/{sample}_S{part}.fastq.gz"
+          flag = touch("logs/demux/done.txt")
      params:
          rstructure=config["illumina"]["readstructure"],
      threads: 30
@@ -28,7 +27,6 @@ rule basecalls_to_fastq:
                     --mask-short-adapter-reads 0 \
                     --create-fastq-for-index-reads \
                     --use-bases-mask {params.rstructure}
-        touch {output.basecall_done}
          """
 
 def get_fq(wildcards):
@@ -38,8 +36,8 @@ def get_fq(wildcards):
         #fastq=get_fq,
 rule fastq_to_bam:
     input:
-        fastq=dynamic("reads/{sample}_S{part}.fastq.gz")
-        basecall_done="logs/demux/done.txt"
+        flag = "logs/demux/done.txt",
+        fastq=get_fq
     output:
         "unmapped/{sample}.unmapped.bam"
     params:

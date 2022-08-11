@@ -23,7 +23,7 @@ from snakemake.utils import min_version
 min_version("5.7.1")
 
 configfile: "../config/config1557.yaml"
-validate(config, schema="schemas/config.schema.yaml")
+# validate(config, schema="schemas/config.schema.yaml")
 
 workdir: config["general"]["work_dir_demux"]
 
@@ -35,10 +35,6 @@ SAMPLES = list(df.iloc[:,1])
 rule all:
     input:
         expand("unmapped/{sample}.unmapped.bam", sample=SAMPLES),
-        # "qc/multiqc_reads.html",
-        # "qc/multiqc_alignments.html"
-        # "unmapped/4-B7.unmapped.bam"
-        # expand("reads/{sample}_S*.fastq.gz", sample=SAMPLES)
 
 # ==============================================================================
 # Include rules
