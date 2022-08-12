@@ -50,8 +50,9 @@ wildcard_constraints:
 
 rule all:
     input:
-        expand("vardict/{sample}.vcf", sample = samples),
-        "filter/variantcalls.csv"
+        "table/Tempus-BL-0776.edit.csv"
+        # expand("vardict/{sample}.vcf", sample = samples),
+        # "filter/variantcalls.csv"
         # expand("table/{sample}.edit.csv", sample = samples),
         # "vardict/AML-108.vcf",
         # expand("vardict/{sample}.vcf", sample = samples),

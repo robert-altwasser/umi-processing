@@ -81,7 +81,7 @@ rule add_ebfilter:
     resources:
         time="00:30:00"
     params:
-        wd = config["general"]["work_dir_variantcalling"],
+        wd = config["general"]["work_dir"] + "variantcalling/",
         sd = config["general"]['snakedir'],
         rs = f"scripts/AddParameters.R",
         candidate = config['edit']['candidate_list'],
@@ -138,7 +138,7 @@ rule combine_annotations:
     output: 
         "filter/{sample}.edit.csv"
     params: 
-        wd = config["general"]["work_dir_variantcalling"],
+        wd = config["general"]["work_dir"] + "variantcalling/",
         sd = config["general"]['snakedir'],
         rs = f"scripts/CombineAnno.R"
     threads: 1
@@ -155,7 +155,7 @@ rule combine_samples:
     output: 
         "filter/variantcalls.csv"
     params: 
-        wd = config["general"]["work_dir_variantcalling"],
+        wd = config["general"]["work_dir"] + "variantcalling/",
         sd = config["general"]['snakedir'],
         rs = f"scripts/MergeCalls.R"
     threads: 1

@@ -82,7 +82,7 @@ rule vcf_to_table:
     output:
         "vardict/{sample}.csv"
     params:
-        wd = config["general"]['work_dir_variantcalling'],
+        wd = config["general"]['work_dir'] + "variantcalling/",
         sd = config["general"]['snakedir'],
         rs = f"scripts/Vcf2Table.R",
     resources:
@@ -104,7 +104,7 @@ rule table_to_anno:
     resources:
         time="00:30:00"
     params:
-        wd = config["general"]['work_dir_variantcalling'],
+        wd = config["general"]['work_dir'] + "variantcalling/",
         sd = config["general"]['snakedir'],
         rs = f"scripts/SplitTable.R",
     shell:

@@ -18,10 +18,11 @@ eb[which(eb == ".")] <- NA
 # Calculate Fisher exact test
 # https://gatk.broadinstitute.org/hc/en-us/articles/360035532152-Fisher-s-Exact-Test
 fisher <- round(dhyper(as.numeric(input["TR1_plus"][[1]]), 
-                 as.numeric(input["TR1"][[1]]), 
-                 as.numeric(input["TR2"][[1]]), 
-                 as.numeric(input["TR1_plus"][[1]] + input["TR2_plus"][[1]]), 
-                 log = TRUE), digits = 4) * -1
+                       as.numeric(input["TR1"][[1]]), 
+                       as.numeric(input["TR2"][[1]]), 
+                       as.numeric(input["TR1_plus"][[1]] + input["TR2_plus"][[1]]), 
+                       log = TRUE),
+                digits = 4) * -1
 input["FisherScore"] <- fisher
 
 input["MultiAllelic"] <- 0
@@ -55,15 +56,15 @@ if (nrow(input) != length(eb))
 
 # Calculate VAF
 input["TVAF"] <- round(as.numeric(input["TR2"][[1]])/
-                           as.numeric(input["readDepth"][[1]]), digits = 4)
+                       as.numeric(input["readDepth"][[1]]), digits = 4)
 
 ### Filtering calls, where the to many calls are "N" (unkown nucleotide)
 ### They are filtered if the difference between the TVAF and the "NVAF"
 ### is more than 0.5 percent-points
 tvaf = input["TVAF"]
-depth_tot = tvaf["readDepth"]
-depth_ref = tvaf["TR1"]
-depth_alt = tvaf["TR2"]
+depth_tot = input["readDepth"]
+depth_ref = input["TR1"]
+depth_alt = input["TR2"]
 ### number of "N"s
 N_errors = depth_tot - depth_ref - depth_alt
 ### frequency of "N"s
