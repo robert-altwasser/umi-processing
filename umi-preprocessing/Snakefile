@@ -32,7 +32,7 @@ workdir: config["general"]["work_dir"] + "/demux/"
 # Include rules
 # ==============================================================================
 
-include: "../config/resources.smk"
+include: "rules/resources.smk"
 include: "rules/mapping.smk"
 include: "rules/qc.smk"
 include: "rules/tools.smk"

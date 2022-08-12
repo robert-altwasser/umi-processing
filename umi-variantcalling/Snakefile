@@ -29,7 +29,7 @@ for sample in samples:
 # include helper functions
 include: "rules/io.snk"
 include: "rules/utils.snk"
-include: "../config/rules/resources.smk"
+include: "rules/resources.smk"
 
 include: "rules/variantcalling.snk"
 include: "rules/annotate.snk"

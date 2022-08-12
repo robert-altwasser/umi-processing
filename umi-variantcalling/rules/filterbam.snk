@@ -36,7 +36,6 @@ rule samtools_view:
     wrapper:
         "v1.0.0/bio/samtools/view"
 
-
 rule samtools_index:
     input:
         "filterbam/{sample}.bam"
