@@ -10,6 +10,8 @@ reference:
   genome: "/fast/users/altwassr_c/work/refs/GRCh38.u2af1_fix.v1.2020_04_01.fa"
   known_indels: "/fast/users/altwassr_c/work/umi-data-processing/umi-preprocessing/refs/dbsnp.vcf.gz"
   region_file: "/fast/users/altwassr_c/work/refs/BeLove-1p5X_SNP_1X_99851754_hg38.bed"
+  ### requiered for CNV-calling
+  anno_file: "/home/altwassr/projekte/indexes/refFlat_hg38.txt"
 
 illumina:
   basecall_dir: "/data/gpfs-1/users/altwassr_c/scratch/data/P1557/220708_A00643_0509_BHMV5GDSX3/Data/Intensities/BaseCalls/"
@@ -29,6 +31,9 @@ fgbio:
   fminq: 5
   readstructure: "8B 8B 148T 9M 148T"
 
+### requiered for CNV-calling
+pureCN:
+  path: "/home/altwassr/.lib/R/PureCN/extdata"
 #### ABSOLUTE PATHS ############
 paths:
   mystatic: /fast/groups/ag_damm/work/ref/

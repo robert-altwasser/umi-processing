@@ -15,8 +15,6 @@ eb <- read.table(file = args[6], header = FALSE,
 eb <- as.vector(eb[,1])
 eb[which(eb == ".")] <- NA
 
-
-
 # Calculate Fisher exact test
 # https://gatk.broadinstitute.org/hc/en-us/articles/360035532152-Fisher-s-Exact-Test
 fisher <- round(dhyper(as.numeric(input["TR1_plus"][[1]]), 
@@ -55,11 +53,29 @@ if (nrow(input) != length(eb))
     
 }
 
-
-
 # Calculate VAF
 input["TVAF"] <- round(as.numeric(input["TR2"][[1]])/
                            as.numeric(input["readDepth"][[1]]), digits = 4)
+
+### Filtering calls, where the to many calls are "N" (unkown nucleotide)
+### They are filtered if the difference between the TVAF and the "NVAF"
+### is more than 0.5 percent-points
+tvaf = input["TVAF"]
+depth_tot = tvaf["readDepth"]
+depth_ref = tvaf["TR1"]
+depth_alt = tvaf["TR2"]
+### number of "N"s
+N_errors = depth_tot - depth_ref - depth_alt
+### frequency of "N"s
+N_vaf = N_errors / depth_tot
+
+### TVAF has to be more that 0.5 percent-points ahead of N_vaf
+passed <- abs(tvaf - N_vaf) > 0.005
+### "rescuing" low "TVAF"s, where there are actually no "N"s
+### this can happen if the TVAF is already below 0.005
+passed[N_vaf == 0] <- TRUE
+
+input["N_passed"] <- passed
 
 icand <- vector(length = nrow(input))
 idriver <- vector(length = nrow(input))

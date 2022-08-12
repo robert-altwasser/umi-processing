@@ -1,0 +1,52 @@
+# ==============================================================================
+# Snakemake workflow: Creates CNV from UMI-pipeline output
+#                     
+#
+# Author: Robert Altwasser (robert.altwasser@charite.de)
+#         
+#
+# Description:
+# CNV precessing using CNVKit and PURECN
+# ==============================================================================
+
+# ==============================================================================
+# Initialization of workflow
+# ==============================================================================
+import pandas as pd
+import numpy as np
+import glob
+from snakemake.utils import validate
+from snakemake.utils import min_version
+import os
+import re
+
+min_version("5.7.1")
+
+configfile: "../config/config1557.yaml"
+
+workdir: config["general"]["work_dir"] + "cnv/"
+path_to_mapped = config["general"]["work_dir"] +  "demux/mapped/"
+path_to_snp = config["general"]["work_dir"] +  "variantcalls/vardict/"
+
+os.system("export " + "PURECN=" + config["pureCN"]["path"])
+
+SAMPLES_files = glob.glob(path_to_mapped + "/*.realigned.bam")
+SAMPLES = [os.path.basename(re.sub('\.realigned\.bam$', '', i)) for i in SAMPLES_files]
+
+file_ending = ".realigned.bam"
+input_bam = {}
+for sample in samples:
+    input_bam[sample] = ''.join([config["general"]["work_dir"], "demux/mapped/", sample, file_ending])
+
+
+# ############ INCLUDES ##############################
+# include helper functions
+include: "rules/cnv.smk"
+include: "../config/rules/resources.smk"
+
+# ############## MASTER RULE ##############################################
+
+rule all:
+    input:
+       expand("plots/{sample}_scatter.pdf", sample = SAMPLES),
+       expand("vcf/{sample}.call.vcf", sample = SAMPLES)
