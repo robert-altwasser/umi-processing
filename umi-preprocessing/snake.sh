@@ -13,7 +13,7 @@ snakemake \
     --nt \
     --jobs 60 \
     --restart-times 0 \
-    --cluster-config ~/work/umi-testing/config/cluster_config.yaml \
+    --cluster-config ~/work/umi-data-processing/config/cluster_config.yaml \
     --profile=cubi-v1 \
     --use-conda \
     -w 10 \
