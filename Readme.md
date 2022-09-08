@@ -92,7 +92,7 @@ picard  IlluminaBasecallsToFastq B=./{MY_RUN}/Data/Intensities/BaseCalls/ L=1 RS
 
 # Variant calling
 
-1.  **vardict**: single (end) mode. *Vardict* has the following features:
+## vardict: single (end) mode. *Vardict* has the following features:
     - “ultra sensitive variant caller for [..] variant calling from BAM files”
     - philosophy is to “call everything”, and filter later
     - calls SNV, MNV, InDels, complex and structural variants
@@ -102,22 +102,34 @@ picard  IlluminaBasecallsToFastq B=./{MY_RUN}/Data/Intensities/BaseCalls/ L=1 RS
     - calling of structural variants with paired end data
     - works with amplicons/targeted sequencing; single end only
 
-2.  **ebfilter**: Empirical Bayesian false positive filtering of somatic mutations in cancer genome sequencing. This is done via:
+## EB filter: Empirical Bayesian false positive filtering of somatic mutations in cancer genome sequencing. This is done via:
     
-- **if you do not have a healthy control, set the value to "False" in the config file**
-- estimating sequencing error model using *control* sequencing data
-- compare mismatch ratio with observed mismatch ratio of tumor samples
-- if the mismatch ratio of the tumor sample significantly deviates from the predicted mismatch ratio, it is probably a highly likely somatic mutation
-- Since we usually don't have healthy control, this should not be done.
-- An alternative is using random tumor samples as background.
+    - **if you do not have a healthy control, set the value to "False" in the config file**
+    - estimating sequencing error model using *control* sequencing data
+    - compare mismatch ratio with observed mismatch ratio of tumor samples
+    - if the mismatch ratio of the tumor sample significantly deviates from the predicted mismatch ratio, it is probably a highly likely somatic mutation
+    - Since we usually don't have healthy control, this should not be done.
+    - An alternative is using random tumor samples as background.
 
-3.  **annovar**:
+## anntoation:
 
-# Technical questions:
+    - ANNOVAR: adds gene/region/variant based annotation \[[>LINK<](https://annovar.openbioinformatics.org/en/latest/)\]
+        - COSMIC: *Catalogue Of Somatic Mutations In Cancer*
+        - dbSNP: known human SNP data base by *NCBI*
+    - HDR: *High Discrepancy Region*; regions with many localized differences
 
-> How are we going to to CNV on a targeted panel?
-
-The SNP backbone is more or less evenly distributed over the genome and will serve as a stand-in for WES.
+## Filtering of results
+    - *TVAF*: portion of reads with variation
+        - should have high difference between control and tumor (impurities)
+        - VAF == 1: SNP in all cells, almost always germline 
+        - VAF == 0.5: SNP on one chromosome; from one parent
+        - else: tumor impurities
+    - *clinical*: Is the gene of clinical interest?
+    - *dbSNP*: Is the variance known?
+    - *coverage*: coverage of mutation and normal
+    - *EBFilter*: Is the mutation somatic or germline?
+    - ...
+    - **still a lot of visual verification necessary (IGV)**
 
 # Glossary
 
