@@ -3,7 +3,6 @@ general:
   snakedir: "/fast/users/altwassr_c/work/umi-testing/umi-variantcalling/"
   SampleSheet: "/data/gpfs-1/users/altwassr_c/scratch/data/P1557/220708_A00643_0509_BHMV5GDSX3/SampleSheet_v2.csv"
   tmp_dir: "/data/gpfs-1/users/altwassr_c/scratch/tmp"
-  demux: TRUE
   control: FALSE
 
 reference:  
@@ -16,7 +15,7 @@ reference:
 illumina:
   basecall_dir: "/data/gpfs-1/users/altwassr_c/scratch/data/P1557/220708_A00643_0509_BHMV5GDSX3/Data/Intensities/BaseCalls/"
   readstructure: "Y148,I8Y9,I8,Y148"
-  runbarcode: "2022"
+# runbarcode: "2022"
 
 picard:
   memoryusage: "-Xmx64g -Xms64g"

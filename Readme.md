@@ -35,8 +35,14 @@ The information comes from the library file.
 
 This file has to give the paths to different annotation files. Especially important are
 
+- general:
+    - defines key paths to run the pipeline
+    - `control`: Are control samples present? If `True`, `EBFilter` will be performed. (See section [EB filter](#EB filter)). The names of the control samples should be stored in a plain text file. The location of the plain text file should be given as `edit: normals: /Path`.
+
+- reference:
+    - paths to the reference genome and annotation files
 - readstructure: This has to be adjusted to the run. see below
-- region file: make sure you have the correct target file
+- region_file: make sure you have the correct target file
 - picard-> memoryusage: Adjust for bigger datasets
 
 ### Readstructure
@@ -92,7 +98,8 @@ picard  IlluminaBasecallsToFastq B=./{MY_RUN}/Data/Intensities/BaseCalls/ L=1 RS
 
 # Variant calling
 
-## vardict: single (end) mode. *Vardict* has the following features:
+## vardict:
+    - single (end) mode
     - “ultra sensitive variant caller for [..] variant calling from BAM files”
     - philosophy is to “call everything”, and filter later
     - calls SNV, MNV, InDels, complex and structural variants
@@ -102,8 +109,8 @@ picard  IlluminaBasecallsToFastq B=./{MY_RUN}/Data/Intensities/BaseCalls/ L=1 RS
     - calling of structural variants with paired end data
     - works with amplicons/targeted sequencing; single end only
 
-## EB filter: Empirical Bayesian false positive filtering of somatic mutations in cancer genome sequencing. This is done via:
-    
+## EB filter
+    - Empirical Bayesian false positive filtering of somatic mutations in cancer genome sequencing. This is done via:
     - **if you do not have a healthy control, set the value to "False" in the config file**
     - estimating sequencing error model using *control* sequencing data
     - compare mismatch ratio with observed mismatch ratio of tumor samples
@@ -112,8 +119,7 @@ picard  IlluminaBasecallsToFastq B=./{MY_RUN}/Data/Intensities/BaseCalls/ L=1 RS
     - An alternative is using random tumor samples as background.
 
 ## anntoation:
-
-    - ANNOVAR: adds gene/region/variant based annotation \[[>LINK<](https://annovar.openbioinformatics.org/en/latest/)\]
+    - ANNOVAR: adds gene/region/variant based annotation [[>LINK<](https://annovar.openbioinformatics.org/en/latest/)]
         - COSMIC: *Catalogue Of Somatic Mutations In Cancer*
         - dbSNP: known human SNP data base by *NCBI*
     - HDR: *High Discrepancy Region*; regions with many localized differences
@@ -164,16 +170,15 @@ Demultiplexing
 # Troubleshooting
 
 - programs crash without error:
-    
     - usually not enough memory
     - increase `picard` memory in `config.yaml`
+
 - `barcode_metrices.txt` has only "Unmatched" reads
-    
     - indexes in `barcodes_params` wrong
+
 - `barcode_metrices.txt` has **almost** only "unmatched" reads
-    
     - 5' indexes not reverse complement
+
 - `XX.unmapped.bam` files remain empty:
-    
     - check `picard` log for `picard.PicardException: Read records with barcode CGCAATCTNNNNNNNNNACAGGCAT, but this barcode was not expected. (Is it referenced in the parameters file?)`
         - indexes in `library_param.csv` and `barcode_params` don't match
