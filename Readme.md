@@ -29,7 +29,7 @@ Lane,Sample_ID,Sample_Name,index,index2
 ```
 
 The information comes from the library file.
-**The index2 has to be the *reverse complement!***. This can be done using this link \[[>LINK<](https://arep.med.harvard.edu/labgc/adnan/projects/Utilities/revcomp.html)\]
+**The index2 has to be the *reverse complement!***. This can be done using this link [>LINK<](https://arep.med.harvard.edu/labgc/adnan/projects/Utilities/revcomp.html)
 
 ## config file
 
@@ -119,7 +119,7 @@ picard  IlluminaBasecallsToFastq B=./{MY_RUN}/Data/Intensities/BaseCalls/ L=1 RS
     - An alternative is using random tumor samples as background.
 
 ## anntoation:
-    - ANNOVAR: adds gene/region/variant based annotation [[>LINK<](https://annovar.openbioinformatics.org/en/latest/)]
+    - ANNOVAR: adds gene/region/variant based annotation [>LINK<](https://annovar.openbioinformatics.org/en/latest/)
         - COSMIC: *Catalogue Of Somatic Mutations In Cancer*
         - dbSNP: known human SNP data base by *NCBI*
     - HDR: *High Discrepancy Region*; regions with many localized differences
