@@ -8,7 +8,7 @@ rule mutation_bed:
     resources:
         time="00:30:00"
     run:
-        dir_path = config["general"]["work_dir_variantcalling"]
+        dir_path = config["general"]["work_dir"] + "variantcalling"
         conf = config['filter_bam']
         print(f"{dir_path}/{input}")
         anno_df = pd.read_csv(f"{dir_path}/{input}", sep='\t').sort_values(['Chr', 'Start']).iloc[:,:5]
@@ -36,7 +36,7 @@ rule samtools_view:
     wrapper:
         "v1.0.0/bio/samtools/view"
 
-rule samtools_index:
+rule samtools_index_vc:
     input:
         "filterbam/{sample}.bam"
     output:

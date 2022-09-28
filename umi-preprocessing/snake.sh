@@ -12,12 +12,10 @@
 snakemake \
     --nt \
     --jobs 60 \
-    --restart-times 0 \
+    --restart-times 2 \
     --cluster-config ~/work/umi-data-processing/config/cluster_config.yaml \
     --profile=cubi-v1 \
     --use-conda \
-    -w 10 \
-    --until multiqc_reads \
     --printshellcmds \
     --rerun-incomplete \
     --scheduler greedy \
