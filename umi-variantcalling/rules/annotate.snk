@@ -81,7 +81,7 @@ rule add_ebfilter:
     resources:
         time="00:30:00"
     params:
-        wd = config["general"]["work_dir"] + "variantcalling/",
+        # wd = config["general"]["work_dir"] + "variantcalling/",
         sd = config["general"]['snakedir'],
         rs = f"scripts/AddParameters.R",
         candidate = config['edit']['candidate_list'],
@@ -89,8 +89,9 @@ rule add_ebfilter:
         CHIP = config['edit']['CHIP_list']
     shell:
         r"""
-        Rscript {params.sd}/{params.rs} {params.wd}/{input.anno} {params.wd}/{output} {params.candidate} {params.driver} {params.CHIP} {params.wd}/{input.ebfilter}
+        Rscript {params.sd}/{params.rs} {input.anno} {output} {params.candidate} {params.driver} {params.CHIP} {input.ebfilter}
         """
+        #Rscript {params.sd}/{params.rs} {params.wd}/{input.anno} {params.wd}/{output} {params.candidate} {params.driver} {params.CHIP} {params.wd}/{input.ebfilter}
 
 rule primer3:
     input: "table/{sample}.edit.csv"
@@ -146,7 +147,7 @@ rule combine_annotations:
         time="00:30:00"
     shell:
         r"""
-        Rscript {params.sd}/{params.rs} {params.wd}/{input.anno_edit} {params.wd}/{input.primer} {params.wd}/{input.hdr} {params.wd}/{output}
+        Rscript {params.sd}/{params.rs} {input.anno_edit} {input.primer} {input.hdr} {output}
         """
 
 rule combine_samples:
@@ -164,6 +165,7 @@ rule combine_samples:
         mem_mb=get_mem_30_10
     shell:
         r"""
-        Rscript {params.sd}/{params.rs} {params.wd}/filter {params.wd}/{output}
+        Rscript {params.sd}/{params.rs} filter {output}
         """
+        #Rscript {params.sd}/{params.rs} {params.wd}/filter {params.wd}/{output}
 

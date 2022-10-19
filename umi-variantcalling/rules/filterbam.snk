@@ -1,3 +1,28 @@
+# rule mutation_bed:
+#     input:
+#         "table/{sample}.edit.csv"
+#     output:
+#         "filterbam/{sample}.bed"
+#     params:
+#         config['filter_bam']['padding']
+#     resources:
+#         time="00:30:00"
+#     run:
+#         dir_path = config["general"]["work_dir"] + "variantcalling"
+#         conf = config['filter_bam']
+#         print(f"{dir_path}/{input}")
+#         anno_df = pd.read_csv(f"{dir_path}/{input}", sep='\t').sort_values(['Chr', 'Start']).iloc[:,:5]
+#         if not len(anno_df.index):
+#             anno_df.to_csv("filterbam/{sample}.bed", index=False, sep='\t', header=False)
+#         else:
+#             # get the bedfie with padded and collapsed regions
+#             bed_df = anno_df.groupby('Chr').apply(reduce_regions, conf['padding'])
+#             # remove Chr index
+#             bed_df = bed_df.reset_index().drop(columns='level_1')
+#             # write bed_df to file
+#             print('MUTFILE', anno_df, '\n', 'BED', bed_df)
+#             bed_df.to_csv(f"{dir_path}/{output}", index=False, sep='\t', header=False)
+#             #print('MUTFILE', anno_df, '\n', 'BED', bed_df)
 rule mutation_bed:
     input:
         "table/{sample}.edit.csv"
@@ -10,8 +35,8 @@ rule mutation_bed:
     run:
         dir_path = config["general"]["work_dir"] + "variantcalling"
         conf = config['filter_bam']
-        print(f"{dir_path}/{input}")
-        anno_df = pd.read_csv(f"{dir_path}/{input}", sep='\t').sort_values(['Chr', 'Start']).iloc[:,:5]
+        print(f"{input}")
+        anno_df = pd.read_csv(f"{input}", sep='\t').sort_values(['Chr', 'Start']).iloc[:,:5]
         if not len(anno_df.index):
             anno_df.to_csv("filterbam/{sample}.bed", index=False, sep='\t', header=False)
         else:
@@ -21,7 +46,7 @@ rule mutation_bed:
             bed_df = bed_df.reset_index().drop(columns='level_1')
             # write bed_df to file
             print('MUTFILE', anno_df, '\n', 'BED', bed_df)
-            bed_df.to_csv(f"{dir_path}/{output}", index=False, sep='\t', header=False)
+            bed_df.to_csv(f"{output}", index=False, sep='\t', header=False)
             #print('MUTFILE', anno_df, '\n', 'BED', bed_df)
 
 rule samtools_view:
