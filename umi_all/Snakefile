@@ -12,7 +12,7 @@ import importlib.util
 
 # ############ SETUP ##############################
 
-configfile: "../config/config1686_L2.yaml"
+configfile: "../config/config1104.yaml"
 
 workdir: config["general"]["work_dir"]
 
@@ -59,9 +59,9 @@ rule all:
     input:
         expand("unmapped/{sample}.unmapped.bam", sample=SAMPLES),
         expand("mapped/{sample}.realigned.bam", sample=SAMPLES),
-        "qc/multiqc_reads.html",
-        "qc/multiqc_alignments.html",
-        "filter/variantcalls.csv"
+        # "qc/multiqc_reads.html",
+        # "qc/multiqc_alignments.html",
+        # "filter/variantcalls.csv"
         # expand("vardict/{sample}.vcf", sample = samples),
 
 ###########################################################################

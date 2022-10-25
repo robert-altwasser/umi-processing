@@ -1,0 +1,149 @@
+##########################################
+### structure variance calling via delly
+##########################################
+import subprocess
+import glob
+import os
+import re
+import linecache
+
+workdir: "/data/gpfs-1/users/altwassr_c/scratch/AML/svc"
+
+path_to_mapped = "/data/gpfs-1/users/altwassr_c/scratch/AML/mapped/"
+reference_file = "/data/gpfs-1/users/altwassr_c/work/refs/GRCh38.u2af1_fix.v1.2020_04_01.fa"
+
+SAMPLES_files = glob.glob(path_to_mapped + "*.realigned.bam")
+SAMPLES = [os.path.basename(re.sub('\.realigned\.bam$', '', i)) for i in SAMPLES_files]
+# Sample did not work
+SAMPLES.remove("AML-492")
+SAMPLES.remove("AML-198_total")
+
+rule all:
+    input:
+        expand(path_to_mapped + "{sample}.realigned.bam.bai", sample = SAMPLES),
+        expand("calls/{sample}.bcf", sample = SAMPLES),
+        "filtered/merged_calls.vcf",
+        "filtered/merged_geno.vcf",
+        "filtered/filtered_germline.vcf"
+
+rule sv_call:
+    input:
+        samples = path_to_mapped + "{sample}.realigned.bam",
+        indexes = path_to_mapped + "{sample}.realigned.bam.bai"
+    params:
+        fasta = reference_file
+    log:
+         "logs/cv_call/{sample}.txt"
+    output:
+        sv_call = "calls/{sample}.bcf"
+    shell:
+        """
+           delly call \
+               --genome {params.fasta} \
+               --outfile {output.sv_call} \
+               {input.samples} &> {log}
+        """
+
+rule merge_calls:
+    input:
+        expand("calls/{sample}.bcf", sample = SAMPLES)
+    log:
+         "logs/merge_calls/merge_calls.txt"
+    output:
+         "filtered/merged_calls.bcf"
+    shell:
+        """
+           delly merge \
+               --outfile {output} \
+               {input} &> {log}
+        """
+
+rule genotyping:
+    input:
+        samples = path_to_mapped + "{sample}.realigned.bam",
+        merged_call = "filtered/merged_calls.bcf"
+    params:
+        fasta = reference_file
+    log:
+         "logs/cv_geno/{sample}.txt"
+    output:
+        sv_call = "calls/{sample}_geno.bcf"
+    shell:
+        """
+           delly call \
+               --genome {params.fasta} \
+               --vcffile {input.merged_call} \
+               --outfile {output.sv_call} \
+               {input.samples} &> {log}
+        """
+
+
+rule merge_geno:
+    input:
+        expand("calls/{sample}_geno.bcf", sample = SAMPLES)
+    log:
+        "logs/merged_geno/merged_geno.txt"
+    output:
+        "filtered/merged_geno.bcf"
+    resources:
+        mem="10G",
+        mem_mb="10G",
+        time="01:00:00"
+    shell:
+        """
+           bcftools merge \
+               --force-samples \
+               -m id \
+               --output-type b \
+               --output {output} \
+               {input} &> {log}
+        """
+
+rule index_bcf:
+    input:
+        "{anything}.bcf"
+    output:
+        "{anything}.bcf.csi"
+    shell:
+        """
+           tabix {input}
+        """
+
+rule index_bam:
+    input:
+        "{anything}.bam"
+    output:
+        "{anything}.bam.bai"
+    shell:
+        """
+           samtools index {input}
+        """
+
+rule filter_germline:
+    input:
+        merged = "filtered/merged_geno.bcf",
+        index = "filtered/merged_geno.bcf.csi"
+    log:
+        "logs/filter_germline/filter_germline.txt"
+    output:
+        "filtered/filtered_germline.bcf"
+    shell:
+        """
+        delly filter \
+            -f germline \
+            -o {output} \
+            {input.merged} &> {log}
+        """
+
+rule convert_bcf_vcf:
+    input:
+        "{anything}.bcf"
+    output:
+        "{anything}.vcf"
+    shell:
+        """
+           bcftools convert \
+              --output-type v \
+              --output {output} \
+              {input}
+        """

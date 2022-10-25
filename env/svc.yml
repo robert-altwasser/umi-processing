@@ -1,0 +1,10 @@
+name: svc
+channels:
+  - defaults
+  - conda-forge
+  - bioconda
+dependencies:
+  - bcftools
+  - delly
+  - samtools
+  - snakemake
