@@ -151,7 +151,9 @@ rule filter_germline:
 rule intersect_control:
     input:
         samples = "merged/merged_geno.bcf",
-        control = "merged/merged_control.bcf"
+        samples_index = "merged/merged_geno.bcf.csi",
+        control = "merged/merged_control.bcf",
+        control_index = "merged/merged_control.bcf.csi"
     log:
         "logs/intersect_control.txt"
     output:
@@ -172,7 +174,7 @@ rule vcf2tsv:
     output:
         "{anything}.tsv"
     params:
-        temp = temp("{anything}_temp.tsv")
+        temp = temp("/temp/{anything}_temp.tsv")
     shell:
         """
 vcf2tsvpy \
