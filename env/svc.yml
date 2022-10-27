@@ -8,3 +8,5 @@ dependencies:
   - delly
   - samtools
   - snakemake
+  - vcf2tsvpy
+  - gsl=2.7=he838d99_0

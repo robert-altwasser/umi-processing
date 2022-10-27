@@ -1,5 +1,16 @@
 ##########################################
 ### structure variance calling via delly
+### Workflow
+# A: SV calling on the BAM files of samples
+# A: merge all SV calls into unified site list
+# A: use merged calls list to genotype samples
+# A: merge all genotyped samples
+# ############  Skipped! ##########
+# A: use merged genotype list for germline filtering
+# ############  end Skipped! ######
+# B: SV calling on the BAM files of control
+# B: merge all control SV calls into unified site list
+# C: "setDIFF" sample SV calls with contol SV calls
 ##########################################
 import subprocess
 import glob
@@ -14,17 +25,20 @@ reference_file = "/data/gpfs-1/users/altwassr_c/work/refs/GRCh38.u2af1_fix.v1.20
 
 SAMPLES_files = glob.glob(path_to_mapped + "*.realigned.bam")
 SAMPLES = [os.path.basename(re.sub('\.realigned\.bam$', '', i)) for i in SAMPLES_files]
+
+CONTROL = list(filter(lambda x:'AML-N' in x, SAMPLES))
+SAMPLES = list(filter(lambda x:'AML-N' not in x, SAMPLES))
+### Delly cannot handle merged samples (two IDs)
+SAMPLES = list(filter(lambda x:'_total' not in x, SAMPLES))
+
 # Sample did not work
 SAMPLES.remove("AML-492")
-SAMPLES.remove("AML-198_total")
 
 rule all:
     input:
-        expand(path_to_mapped + "{sample}.realigned.bam.bai", sample = SAMPLES),
-        expand("calls/{sample}.bcf", sample = SAMPLES),
-        "filtered/merged_calls.vcf",
-        "filtered/merged_geno.vcf",
-        "filtered/filtered_germline.vcf"
+        "filtered/filtered_germline.bcf",
+        "filtered/somatic.vcf",
+        "filtered/somatic.tsv"
 
 rule sv_call:
     input:
@@ -33,7 +47,7 @@ rule sv_call:
     params:
         fasta = reference_file
     log:
-         "logs/cv_call/{sample}.txt"
+         "logs/{sample}_cv_call.txt"
     output:
         sv_call = "calls/{sample}.bcf"
     shell:
@@ -44,13 +58,27 @@ rule sv_call:
                {input.samples} &> {log}
         """
 
-rule merge_calls:
+rule merge_samples:
     input:
         expand("calls/{sample}.bcf", sample = SAMPLES)
     log:
-         "logs/merge_calls/merge_calls.txt"
+         "logs/merge_samples.txt"
     output:
-         "filtered/merged_calls.bcf"
+         "merged/merged_samples.bcf"
+    shell:
+        """
+           delly merge \
+               --outfile {output} \
+               {input} &> {log}
+        """
+
+rule merge_control:
+    input:
+        expand("calls/{control}.bcf", control = CONTROL)
+    log:
+         "logs/merge_control.txt"
+    output:
+         "merged/merged_control.bcf"
     shell:
         """
            delly merge \
@@ -61,11 +89,11 @@ rule merge_calls:
 rule genotyping:
     input:
         samples = path_to_mapped + "{sample}.realigned.bam",
-        merged_call = "filtered/merged_calls.bcf"
+        merged_call = "merged/merged_samples.bcf"
     params:
         fasta = reference_file
     log:
-         "logs/cv_geno/{sample}.txt"
+         "logs/{sample}_cv_geno.txt"
     output:
         sv_call = "calls/{sample}_geno.bcf"
     shell:
@@ -82,24 +110,19 @@ rule merge_geno:
     input:
         expand("calls/{sample}_geno.bcf", sample = SAMPLES)
     log:
-        "logs/merged_geno/merged_geno.txt"
+        "logs/merged_geno.txt"
     output:
-        "filtered/merged_geno.bcf"
-    resources:
-        mem="10G",
-        mem_mb="10G",
-        time="01:00:00"
+        "merged/merged_geno.bcf"
     shell:
         """
            bcftools merge \
-               --force-samples \
                -m id \
                --output-type b \
                --output {output} \
                {input} &> {log}
         """
 
-rule index_bcf:
+rule index:
     input:
         "{anything}.bcf"
     output:
@@ -109,22 +132,12 @@ rule index_bcf:
            tabix {input}
         """
 
-rule index_bam:
-    input:
-        "{anything}.bam"
-    output:
-        "{anything}.bam.bai"
-    shell:
-        """
-           samtools index {input}
-        """
-
 rule filter_germline:
     input:
-        merged = "filtered/merged_geno.bcf",
-        index = "filtered/merged_geno.bcf.csi"
+        merged = "merged/merged_geno.bcf",
+        index = "merged/merged_geno.bcf.csi"
     log:
-        "logs/filter_germline/filter_germline.txt"
+        "logs/filter_germline.txt"
     output:
         "filtered/filtered_germline.bcf"
     shell:
@@ -133,6 +146,40 @@ rule filter_germline:
             -f germline \
             -o {output} \
             {input.merged} &> {log}
+        """
+
+rule intersect_control:
+    input:
+        samples = "merged/merged_geno.bcf",
+        control = "merged/merged_control.bcf"
+    log:
+        "logs/intersect_control.txt"
+    output:
+        "filtered/somatic.vcf"
+    shell:
+        """
+bcftools isec \
+    --prefix temp/ \
+    {input.samples} \
+    {input.control} \
+&&
+cp temp/0000.vcf filtered/somatic.vcf
+        """
+
+rule vcf2tsv:
+    input:
+        "{anything}.vcf"
+    output:
+        "{anything}.tsv"
+    params:
+        temp = temp("{anything}_temp.tsv")
+    shell:
+        """
+vcf2tsvpy \
+    --input_vcf {input} \
+    --out_tsv {params.temp} \
+&&
+tail -n +2 {params.temp} > {output}
         """
 
 rule convert_bcf_vcf:

@@ -3,7 +3,7 @@
 snakemake \
     --snakefile svc_snakemake.snk \
     --nt \
-    --jobs 60 \
+    --jobs 120 \
     --cluster-config ~/work/umi-data-processing/config/cluster_scv.yaml \
     --profile=cubi-v1 \
     --restart-times 0 \
