@@ -19,10 +19,10 @@ from snakemake.utils import min_version
 
 min_version("5.7.1")
 
-configfile: "../config/config1557.yaml"
+configfile: "../config/config1686.yaml"
 validate(config, schema="schemas/config.schema.yaml")
 
-SAMPLES = os.listdir(config["general"]["work_dir_demux"] +"/unmapped/")
+SAMPLES = os.listdir(config["general"]["work_dir"] + "/demux/unmapped/")
 SAMPLES = list(filter(lambda x:'.unmapped.bam' in x, SAMPLES))
 SAMPLES = [s.replace('.unmapped.bam', '') for s in SAMPLES]
 
@@ -43,8 +43,6 @@ include: "rules/tools.smk"
 
 rule all:
     input:
-        # expand("mapped/{sample}.consensusreads.bam", sample=SAMPLES),
-        # expand("mapped/{sample}.consensusreads.bam.bai", sample=SAMPLES),
         expand("mapped/{sample}.realigned.bam", sample=SAMPLES),
         expand("mapped/{sample}.realigned.bam.bai", sample=SAMPLES),
         "qc/multiqc_reads.html",

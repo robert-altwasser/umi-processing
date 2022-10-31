@@ -82,7 +82,7 @@ rule vcf_to_table:
     output:
         "vardict/{sample}.csv"
     params:
-        wd = config["general"]['work_dir'] + "variantcalling/",
+        #wd = config["general"]['work_dir'] + "variantcalling/",
         sd = config["general"]['snakedir'],
         rs = f"scripts/Vcf2Table.R",
     resources:
@@ -91,8 +91,9 @@ rule vcf_to_table:
         "../env/vardict-pipeline.yml",
     shell:
         r"""
-        Rscript {params.sd}/{params.rs} {params.wd}/{input} {params.wd}/{output}
+        Rscript {params.sd}/{params.rs} {input} {output}
         """
+        #Rscript {params.sd}/{params.rs} {params.wd}/{input} {params.wd}/{output}
 
 rule table_to_anno:
     input:
@@ -104,10 +105,26 @@ rule table_to_anno:
     resources:
         time="00:30:00"
     params:
-        wd = config["general"]['work_dir'] + "variantcalling/",
         sd = config["general"]['snakedir'],
         rs = f"scripts/SplitTable.R",
     shell:
         r"""
-        Rscript {params.sd}/{params.rs} {params.wd}/{input} {params.wd}/{output}
+        Rscript {params.sd}/{params.rs} {input} {output}
         """
+# rule table_to_anno:
+#     input:
+#         "vardict/{sample}.csv",
+#     output:
+#         "table/{sample}.csv"
+#     threads:
+#         1
+#     resources:
+#         time="00:30:00"
+#     params:
+#         wd = config["general"]['work_dir'] + "variantcalling/",
+#         sd = config["general"]['snakedir'],
+#         rs = f"scripts/SplitTable.R",
+#     shell:
+#         r"""
+#         Rscript {params.sd}/{params.rs} {params.wd}/{input} {params.wd}/{output}
+#         """
