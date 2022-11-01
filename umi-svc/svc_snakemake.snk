@@ -55,10 +55,11 @@ CONTROL.remove("AML-N01")
 rule all:
     input:
         expand("calls/{samples}.bcf", samples = SAMPLES),
-        "filtered/somatic.vcf"
-        # "merged/merged_geno.vcf",
-        # "merged/merged_samples.vcf",
-        # "filtered/somatic.tsv"
+        "filtered/somatic.vcf",
+        "filtered/somatic.gz.tbi",
+        "filtered/somatic.tsv",
+        "merged/merged_geno.vcf",
+        "merged/merged_samples.vcf",
 
 rule sv_call:
     input:
@@ -194,7 +195,7 @@ rule vcf2tsv:
     output:
         "{anything}.tsv"
     params:
-        temp = temp("/temp/{anything}_temp.tsv")
+        temp = temp("{anything}_temp.tsv")
     shell:
         """
 vcf2tsvpy \
@@ -202,6 +203,17 @@ vcf2tsvpy \
     --out_tsv {params.temp} &&
 tail -n +2 {params.temp} > {output}
         """
+
+rule zip_index:
+    input:
+        "{anything}"
+    output:
+        "{anything}.gz.tbi"
+    shell:
+        """
+        bgzip {input} && tabix {anything}.gz
+        """
+
 
 rule convert_bcf_vcf:
     input:
