@@ -34,11 +34,31 @@ SAMPLES = list(filter(lambda x:'_total' not in x, SAMPLES))
 # Sample did not work
 SAMPLES.remove("AML-492")
 
+# Samples without variance
+SAMPLES.remove("AML-108_2")
+SAMPLES.remove("AML-120")
+SAMPLES.remove("AML-133")
+SAMPLES.remove("AML-162")
+SAMPLES.remove("AML-169")
+SAMPLES.remove("AML-218")
+SAMPLES.remove("AML-222")
+SAMPLES.remove("AML-239")
+SAMPLES.remove("AML-239_newprep")
+SAMPLES.remove("AML-244")
+SAMPLES.remove("AML-245")
+SAMPLES.remove("AML-283")
+SAMPLES.remove("AML-288")
+SAMPLES.remove("AML-537")
+CONTROL.remove("AML-N01")
+
+
 rule all:
     input:
-        "filtered/filtered_germline.bcf",
-        "filtered/somatic.vcf",
-        "filtered/somatic.tsv"
+        expand("calls/{samples}.bcf", samples = SAMPLES),
+        "filtered/somatic.vcf"
+        # "merged/merged_geno.vcf",
+        # "merged/merged_samples.vcf",
+        # "filtered/somatic.tsv"
 
 rule sv_call:
     input:
@@ -179,8 +199,7 @@ rule vcf2tsv:
         """
 vcf2tsvpy \
     --input_vcf {input} \
-    --out_tsv {params.temp} \
-&&
+    --out_tsv {params.temp} &&
 tail -n +2 {params.temp} > {output}
         """
 
