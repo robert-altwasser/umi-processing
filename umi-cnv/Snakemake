@@ -15,6 +15,7 @@
 import pandas as pd
 import numpy as np
 import glob
+import linecache
 from snakemake.utils import validate
 from snakemake.utils import min_version
 import os
@@ -22,7 +23,7 @@ import re
 
 min_version("5.7.1")
 
-configfile: "../config/config1557.yaml"
+configfile: "../config/configAML_cnv.yaml"
 
 workdir: config["general"]["work_dir"] + "cnv/"
 path_to_mapped = config["general"]["work_dir"] +  "demux/mapped/"
@@ -32,21 +33,25 @@ os.system("export " + "PURECN=" + config["pureCN"]["path"])
 
 SAMPLES_files = glob.glob(path_to_mapped + "/*.realigned.bam")
 SAMPLES = [os.path.basename(re.sub('\.realigned\.bam$', '', i)) for i in SAMPLES_files]
+CONTROL = list(filter(lambda x:'AML-N' in x, SAMPLES))
+SAMPLES = list(filter(lambda x:'AML-N' not in x, SAMPLES)) ### remove Control
 
 file_ending = ".realigned.bam"
 input_bam = {}
-for sample in samples:
+for sample in SAMPLES:
     input_bam[sample] = ''.join([config["general"]["work_dir"], "demux/mapped/", sample, file_ending])
 
 
 # ############ INCLUDES ##############################
 # include helper functions
 include: "rules/cnv.smk"
-include: "../config/rules/resources.smk"
+# include: "../config/rules/resources.smk"
 
 # ############## MASTER RULE ##############################################
 
 rule all:
     input:
-       expand("plots/{sample}_scatter.pdf", sample = SAMPLES),
-       expand("vcf/{sample}.call.vcf", sample = SAMPLES)
+        expand("cnvKIT/{sample}.realigned.cnr", sample = SAMPLES),
+        expand("normalized/{sample}.call.cns", sample = SAMPLES),
+        expand("vcf/{sample}.call.vcf", sample = SAMPLES),
+        expand("plots/{sample}_scatter.pdf", sample = SAMPLES),
