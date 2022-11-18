@@ -20,11 +20,12 @@ df = pd.read_csv(config["general"]["SampleSheet"], sep = ',', skiprows=13)
 SAMPLES = list(df.iloc[:,1])
 samples = SAMPLES
 
+samples = ["A_440"]
 file_ending = ".realigned.bam"
+
 input_bam = {}
 for sample in samples:
-    input_bam[sample] = ''.join([config["general"]["work_dir"], "mapped/", sample, file_ending])
-
+    input_bam[sample] = ''.join([config["general"]["work_dir"], "mapped/", str(sample), file_ending])
 
 # ############ INCLUDES ##############################
 # include helper functions
@@ -57,11 +58,11 @@ wildcard_constraints:
 
 rule all:
     input:
-        expand("unmapped/{sample}.unmapped.bam", sample=SAMPLES),
-        expand("mapped/{sample}.realigned.bam", sample=SAMPLES),
-        # "qc/multiqc_reads.html",
-        # "qc/multiqc_alignments.html",
-        # "filter/variantcalls.csv"
-        # expand("vardict/{sample}.vcf", sample = samples),
+        # expand("unmapped/{sample}.unmapped.bam", sample=SAMPLES),
+        # expand("mapped/{sample}.realigned.bam", sample=SAMPLES),
+        "qc/multiqc_reads.html",
+        "qc/multiqc_alignments.html",
+        "filter/variantcalls.csv",
+        expand("vardict/{sample}.vcf", sample = samples),
 
 ###########################################################################

@@ -36,6 +36,25 @@ SAMPLES = [os.path.basename(re.sub('\.realigned\.bam$', '', i)) for i in SAMPLES
 CONTROL = list(filter(lambda x:'AML-N' in x, SAMPLES))
 SAMPLES = list(filter(lambda x:'AML-N' not in x, SAMPLES)) ### remove Control
 
+SAMPLES.remove("AML-108_2")
+SAMPLES.remove("AML-154")
+SAMPLES.remove("AML-154_newprep")
+SAMPLES.remove("AML-154_total")
+SAMPLES.remove("AML-160")
+SAMPLES.remove("AML-165")
+SAMPLES.remove("AML-165_newprep")
+SAMPLES.remove("AML-165_total")
+SAMPLES.remove("AML-174_newprep")
+SAMPLES.remove("AML-174")
+SAMPLES.remove("AML-192_reseq")
+SAMPLES.remove("AML-192_total")
+SAMPLES.remove("AML-199")
+SAMPLES.remove("AML-239")
+SAMPLES.remove("AML-239_newprep")
+SAMPLES.remove("AML-239_total")
+SAMPLES.remove("AML-288")
+SAMPLES.remove("AML-492")
+
 file_ending = ".realigned.bam"
 input_bam = {}
 for sample in SAMPLES:
@@ -51,7 +70,8 @@ include: "rules/cnv.smk"
 
 rule all:
     input:
-        expand("cnvKIT/{sample}.realigned.cnr", sample = SAMPLES),
         expand("normalized/{sample}.call.cns", sample = SAMPLES),
-        expand("vcf/{sample}.call.vcf", sample = SAMPLES),
-        expand("plots/{sample}_scatter.pdf", sample = SAMPLES),
+        expand("normalized/{sample}.call_purity.cns", sample = SAMPLES),
+        #expand("cnvKIT/{sample}.realigned.cnr", sample = SAMPLES),
+        #expand("vcf/{sample}.call.vcf", sample = SAMPLES),
+        #expand("plots/{sample}_scatter.pdf", sample = SAMPLES),

@@ -9,7 +9,7 @@ general:
 reference:  
   genome: "/fast/users/altwassr_c/work/refs/GRCh38.u2af1_fix.v1.2020_04_01.fa"
   known_indels: "/fast/users/altwassr_c/work/umi-data-processing/umi-preprocessing/refs/dbsnp.vcf.gz"
-  region_file: "/fast/users/altwassr_c/work/refs/BeLove-1p5X_SNP_1X_99851754_hg38.bed"
+  region_file: "/fast/users/altwassr_c/work/refs/merged_probe_file_combined_Charite_AG_DKMS_Panel_V5p1update_TE-93192476_hg38_sorted.bed"
   ### requiered for CNV-calling
   anno_file: "/fast/users/altwassr_c/work/refs/refFlat_hg38.txt"
 

@@ -1,7 +1,7 @@
 general:
-  work_dir: "/data/gpfs-1/users/altwassr_c/scratch/P1104/"
-  snakedir: "/fast/users/altwassr_c/work/umi-testing/umi-variantcalling/"
-  SampleSheet: "/data/gpfs-1/users/altwassr_c/work/sample_sheets/SampleSheet_1104.csv"
+  work_dir: "/data/gpfs-1/users/altwassr_c/scratch/P1104_4402/"
+  snakedir: "/fast/users/altwassr_c/work/umi-data-processing/umi-variantcalling/"
+  SampleSheet: "/data/gpfs-1/users/altwassr_c/work/sample_sheets/SampleSheet_1104_4402.csv"
   tmp_dir: "/data/gpfs-1/users/altwassr_c/scratch/tmp"
   demux: TRUE
   control: FALSE
