@@ -5,14 +5,16 @@
 rule cnvkit:
     input:
         samples = expand(path_to_mapped + "{sample}.realigned.bam", sample = SAMPLES),
-        control = expand(path_to_mapped + "{contol}.realigned.bam", contol = CONTROL)
+        control = expand(path_to_mapped + "{control}.realigned.bam", control = CONTROL)
     params:
         targets = config["reference"]["region_file"],
         fasta = config["reference"]["genome"],
-        anno = config["reference"]["annot_file"],
+        anno = config["reference"]["anno_file"],
         dir = "cnvKIT",
     resources:
-        threads = 10
+        threads = 128,
+        time = "24:00:00",
+        mem_mb = "160G"
     log:
          "logs/cnvkit.log"
     output:
@@ -40,6 +42,9 @@ rule bgzip:
     output:
         files = "cnvKIT/{sample}.vcf.gz",
         index = "cnvKIT/{sample}.vcf.gz.csi"
+    resources:
+        threads = 1,
+        time = "01:00:00"
     run:
        shell("bgzip \
                  --stdout --index \
@@ -52,6 +57,9 @@ rule bcftools_annotate:
         files = "cnvKIT/{sample}.vcf.gz"
     output:
         "cnvKIT/{sample}_dbsnp.vcf.gz"
+    resources:
+        threads = 1,
+        time = "24:00:00"
     shell:
         "bcftools annotate \
              --annotation {input.annot_file} \
@@ -65,6 +73,9 @@ rule export_seg:
         "cnvKIT/{sample}.realigned.cns"
     output:
        "cnvKIT/{sample}.seg"
+    resources:
+        threads = 1,
+        time = "1:00:00"
     shell:
         "cnvkit.py export seg \
             {input} \
@@ -76,12 +87,15 @@ rule export_seg:
 ##########################################
 rule merge_control:
     input:
-        expand("cnvKIT/{sample}.vcf.gz", sample = CONTROL)
+        expand("cnvKIT/{control}.vcf.gz", control = CONTROL)
     params:
-        vcf = "pureCN/merged.vcf",
+        vcf = "pureCN/results/merged.vcf",
     output:
-        vcf_gz = "pureCN/merged.vcf.gz",
-        vcf_tb = "pureCN/merged.vcf.gz.tbi"
+        vcf_gz = "pureCN/results/merged.vcf.gz",
+        vcf_tb = "pureCN/results/merged.vcf.gz.tbi"
+    resources:
+        threads = 1,
+        time = "01:00:00"
     run:
         shell("bcftools merge \
                 --merge all \
@@ -92,123 +106,143 @@ rule merge_control:
         shell("tabix {output.vcf_gz}")
 
 # Recommended: Provide a normal panel VCF to remove mapping biases, pre-compute
-# position-specific bias for much faster runtimes with large panels
+# position-specific bias for much faster runtimes with "large panels"
 # This needs to be done only once for each assay
 
 ### The program exits on "1". I therefore catch it and send exitcode 0
 rule create_pon:
     input:
-       "pureCN/merged.vcf.gz"
+       "pureCN/results/merged.vcf.gz"
     output:
-        "pon/mapping_bias_assay_hg38.rds",
-        "pon/mapping_bias_hq_sites_assay_hg38.bed"
+        "pureCN/pon/mapping_bias_assay_hg38.rds",
+        "pureCN/pon/mapping_bias_hq_sites_assay_hg38.bed"
+    params:
+        purecn_path = "PURECN=" + config["pureCN"]["path"]
     log:
         "logs/create_pon.log"
+    resources:
+        threads = 1,
+        mem_mb = "20G",
+        time = "04:00:00"
     shell:
          """
-         set +e
-         Rscript $PURECN/NormalDB.R \
-            --outdir 'pureCN' \
-            --normal_panel {input} \
-            --assay assay \
-            --genome hg38 \
-            --force
-         if [ $exitcode -eq 1 ]
-         then
-             exit 0
-         else
-             exit 1
-         fi
+export {params.purecn_path}
+set +e
+exitcode=1
+
+Rscript $PURECN/NormalDB.R \
+   --out-dir 'pureCN/pon/' \
+   --normal-panel {input} \
+   --assay assay \
+   --genome hg38 \
+   --force
+if [ $exitcode -eq 1 ]
+then
+    exit 0
+else
+    exit 1
+fi
             """
 
 rule pureCN:
     input:
-        vcf = "pureCN/{sample}_dbsnp.vcf.gz",
-        tumor ="CNVKit/{sample}.realigned.cnr",
-        segfile = "CNVKit/{sample}.seg",
-        pon = "pon/mapping_bias_assay_hg38.rds"
+        vcf = "cnvKIT/{sample}_dbsnp.vcf.gz",
+        tumor ="cnvKIT/{sample}.realigned.cnr",
+        segfile = "cnvKIT/{sample}.seg",
+        pon = "pureCN/pon/mapping_bias_assay_hg38.rds"
     output:
-        "pureCN/{sample}_pureCN.csv"
+        "pureCN/results/{sample}_pureCN.csv"
     params:
         sample = "{sample}",
-        prefix = "pureCN/{sample}_pureCN",
+        prefix = "pureCN/results/{sample}_pureCN",
+        PURECN = config["pureCN"]["path"]
     log:
-         "logs/{sample}_pureCN.log"
+         "logs/pureCN/{sample}_pureCN.log"
+    resources:
+        threads = 1,
+        time = "04:00:00",
+        mem_mb = "20G"
     shell:
-        "Rscript " + PURECN + "/PureCN.R \
+        "Rscript {params.PURECN}/PureCN.R \
             --out {params.prefix}  \
             --sampleid {params.sample} \
             --tumor {input.tumor} \
-            --segfile {input.segfile} \
-            --mappingbiasfile {input.pon} \
+            --seg-file {input.segfile} \
+            --mapping-bias-file {input.pon} \
             --vcf {input.vcf} \
             --genome hg38 \
-            --funsegmentation Hclust \
-            --force --postoptimize --seed 123 &> {log}"
+            --fun-segmentation Hclust \
+            --force --post-optimize --seed 123 &> {log}"
 
 def get_purity(wildcards):
-    pureCN_file = "pureCN/" + wildcards.sample +"_pureCN.csv"
+    pureCN_file = "pureCN/results/" + wildcards.sample +"_pureCN.csv"
     purity = linecache.getline(pureCN_file, 2)
     return purity.split(",")[1]
 
 def get_ploidy(wildcards):
-    pureCN_file = "pureCN/" + wildcards.sample +"_pureCN.csv"
+    pureCN_file = "pureCN/results/" + wildcards.sample +"_pureCN.csv"
     ploidy = linecache.getline(pureCN_file, 2)
     return round(float(ploidy.split(",")[2]))
 
-### normalise for purity & ploidy
-### with purity 
-# rule cnvKIt_purity:
-#     input:
-#         pureCN_result = "pureCN/{sample}_pureCN.csv",
-#         vcf_file =  path_to_snp + "{sample}.vcf",
-#         cnvKIT_result = "cnvKIT/{sample}.realigned.cns"
-#     params:
-#         purity = get_purity,
-#         ploidy = get_ploidy
-#     output:
-#         "cnvKIT/{sample}.call.cns"
-#     log:
-#         "logs/{sample}_cnvKIT_purity.log"
-#     shell:
-#          "cnvkit.py call \
-#              {input.cnvKIT_result} \
-#              --purity {params.purity} \
-#              --ploidy {params.ploidy} \
-#              --drop-low-coverage \
-#              -y  \
-#              --vcf {input.vcf_file} \
-#              -m none \
-#              -o {output} &> {log}"
-### normalise for purity & ploidy
-rule cnvKIt_purity:
+### normalise 
+rule cnvKIT_normalize:
     input:
-        pureCN_result = "pureCN/{sample}_pureCN.csv",
         vcf_file =  path_to_snp + "{sample}.vcf",
         cnvKIT_result = "cnvKIT/{sample}.realigned.cns"
-    params:
-        ploidy = get_ploidy
     output:
-        "cnvKIT/{sample}.call.cns"
+        "normalized/{sample}.call.cns"
     log:
         "logs/{sample}_cnvKIT_purity.log"
+    resources:
+        threads = 1,
+        time = "04:00:00"
     shell:
          "cnvkit.py call \
              {input.cnvKIT_result} \
-             --ploidy {params.ploidy} \
              --drop-low-coverage \
              -y  \
              --vcf {input.vcf_file} \
              -m none \
              -o {output} &> {log}"
 
+### normalise for purity & ploidy
+rule cnvKIT_purity:
+    input:
+        vcf_file =  path_to_snp + "{sample}.vcf",
+        cnvKIT_result = "cnvKIT/{sample}.realigned.cns",
+        pureCN_result = "pureCN/results/{sample}_pureCN.csv"
+    params:
+        purity = get_purity,
+        ploidy = get_ploidy
+    output:
+        "normalized/{sample}.call_purity.cns"
+    log:
+        "logs/{sample}_cnvKIT_purity.log"
+    resources:
+        threads = 1,
+        time = "04:00:00"
+    shell:
+         "cnvkit.py call \
+             {input.cnvKIT_result} \
+             --ploidy {params.ploidy} \
+             --purity {params.purity} \
+             --drop-low-coverage \
+             -y  \
+             --vcf {input.vcf_file} \
+             -m none \
+             -o {output} &> {log}"
+
+
 rule cnvKIt_vcf:
     input:
-        "cnvKIT/{sample}.call.cns"
+        "normalized/{sample}.call.cns"
     output:
         "vcf/{sample}.call.vcf"
     log:
          "logs/{sample}_cnvKIT_vcf.log"
+    resources:
+        threads = 1,
+        time = "04:00:00"
     shell:
          "cnvkit.py export vcf \
              {input} \
@@ -217,13 +251,16 @@ rule cnvKIt_vcf:
 
 rule cnvKIT_plot:
     input:
-        cnvKIT_call = "cnvKIT/{sample}.call.cns",
+        cnvKIT_call = "normalized/{sample}.call.cns",
         vcf_file =  path_to_snp + "{sample}.vcf",
         tumor = "cnvKIT/{sample}.realigned.cnr"
     log:
          "logs/{sample}_cnvKIT_plot.log"
     output:
         "plots/{sample}_scatter.pdf"
+    resources:
+        threads = 1,
+        time = "04:00:00"
     shell:
         "cnvkit.py scatter \
             {input.tumor} \
