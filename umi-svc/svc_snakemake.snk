@@ -55,6 +55,7 @@ CONTROL.remove("AML-N01")
 rule all:
     input:
         expand("calls/{samples}.bcf", samples = SAMPLES),
+        expand("calls/{samples}.tsv", samples = SAMPLES),
         "filtered/somatic.vcf",
         "filtered/somatic.gz.tbi",
         "filtered/somatic.tsv",

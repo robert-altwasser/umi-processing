@@ -157,13 +157,36 @@ def get_ploidy(wildcards):
     return round(float(ploidy.split(",")[2]))
 
 ### normalise for purity & ploidy
+### with purity 
+# rule cnvKIt_purity:
+#     input:
+#         pureCN_result = "pureCN/{sample}_pureCN.csv",
+#         vcf_file =  path_to_snp + "{sample}.vcf",
+#         cnvKIT_result = "cnvKIT/{sample}.realigned.cns"
+#     params:
+#         purity = get_purity,
+#         ploidy = get_ploidy
+#     output:
+#         "cnvKIT/{sample}.call.cns"
+#     log:
+#         "logs/{sample}_cnvKIT_purity.log"
+#     shell:
+#          "cnvkit.py call \
+#              {input.cnvKIT_result} \
+#              --purity {params.purity} \
+#              --ploidy {params.ploidy} \
+#              --drop-low-coverage \
+#              -y  \
+#              --vcf {input.vcf_file} \
+#              -m none \
+#              -o {output} &> {log}"
+### normalise for purity & ploidy
 rule cnvKIt_purity:
     input:
         pureCN_result = "pureCN/{sample}_pureCN.csv",
         vcf_file =  path_to_snp + "{sample}.vcf",
         cnvKIT_result = "cnvKIT/{sample}.realigned.cns"
     params:
-        purity = get_purity,
         ploidy = get_ploidy
     output:
         "cnvKIT/{sample}.call.cns"
@@ -172,7 +195,6 @@ rule cnvKIt_purity:
     shell:
          "cnvkit.py call \
              {input.cnvKIT_result} \
-             --purity {params.purity} \
              --ploidy {params.ploidy} \
              --drop-low-coverage \
              -y  \
