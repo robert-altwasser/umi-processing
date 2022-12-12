@@ -29,7 +29,7 @@ rule GroupReads:
     input:
         "mapped/{sample}.woconsensus.bam"
     output:
-        bam=temporary("unmapped/{sample}.groupedumi.bam"),
+        bam="unmapped/{sample}.groupedumi.bam",
         hist="metrices/fgbio/{sample}.groupedumi.histo.tsv",
     params:
         extra=config["fgbio"]["groupreads"]
@@ -41,7 +41,6 @@ rule GroupReads:
         "logs/fgbio/group_reads/{sample}.log"
     wrapper:
         "v1.0.0/bio/fgbio/groupreadsbyumi"
-
 
 rule ConsensusReads:
     input:

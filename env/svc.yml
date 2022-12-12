@@ -7,10 +7,14 @@ dependencies:
   - bcftools
   - delly=1.1.5
   - samtools
-  - snakemake
+  - snakemake=7.18.0
+  - r-optparse
   - vcf2tsvpy
   - gsl=2.7=he838d99_0
   - bioconductor-bsgenome.hsapiens.ucsc.hg38
+  - bioconductor-txdb.hsapiens.ucsc.hg38.knowngene
   - bioconductor-purecn
+  - bioconductor-org.hs.eg.db
+  - r-stringi=1.7.8
   - r-pscbs
   - gridss=2.13.2=h20b1175_1
