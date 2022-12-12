@@ -13,3 +13,4 @@ dependencies:
   - bioconductor-bsgenome.hsapiens.ucsc.hg38
   - bioconductor-purecn
   - r-pscbs
+  - gridss=2.13.2=h20b1175_1
