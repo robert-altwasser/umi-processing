@@ -29,7 +29,8 @@ rule vardict:
         extra="-c 1 -S 2 -E 3 -g 4",
         vaf=config["vardict"]["vaf"]
     resources:
-        time=get_time_2_1
+        time="48:00:00",
+        threads=3
     conda:
         "/fast/users/altwassr_c/environments/vardict.yaml"
     shell:

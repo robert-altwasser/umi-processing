@@ -12,24 +12,29 @@ import importlib.util
 
 # ############ SETUP ##############################
 
-configfile: "../config/config1104.yaml"
+configfile: "../config/config1607.yaml"
 
 workdir: config["general"]["work_dir"]
 
-df = pd.read_csv(config["general"]["SampleSheet"], sep = ',', skiprows=13)
-SAMPLES = list(df.iloc[:,1])
+### Get SAMPLES via SampleSheet
+# df = pd.read_csv(config["general"]["SampleSheet"], sep = ',', skiprows=13)
+# SAMPLES = list(df.iloc[:,1])
+# samples = SAMPLES
+
+### Get SAMPLES via existing files
+SAMPLES = os.listdir(config["general"]["work_dir"] + "unmapped/")
+SAMPLES = list(filter(lambda x:'.unmapped.bam' in x, SAMPLES))
+SAMPLES = [s.replace('.unmapped.bam', '') for s in SAMPLES]
+
 samples = SAMPLES
 
-samples = ["A_440"]
 file_ending = ".realigned.bam"
-
 input_bam = {}
 for sample in samples:
     input_bam[sample] = ''.join([config["general"]["work_dir"], "mapped/", str(sample), file_ending])
-
-# ############ INCLUDES ##############################
+############ INCLUDES ##############################
 # include helper functions
-include: "../umi-demultiplex/rules/demux.smk"
+# include: "../umi-demultiplex/rules/demux.smk"
 
 include: "../umi-preprocessing/rules/resources.smk"
 include: "../umi-preprocessing/rules/mapping.smk"
@@ -60,9 +65,9 @@ rule all:
     input:
         # expand("unmapped/{sample}.unmapped.bam", sample=SAMPLES),
         # expand("mapped/{sample}.realigned.bam", sample=SAMPLES),
-        "qc/multiqc_reads.html",
-        "qc/multiqc_alignments.html",
-        "filter/variantcalls.csv",
-        expand("vardict/{sample}.vcf", sample = samples),
+        # "qc/multiqc_reads.html",
+        # "qc/multiqc_alignments.html",
+        # "filter/variantcalls.csv",
+        expand("vardict/{sample}.vcf", sample = SAMPLES),
 
 ###########################################################################
