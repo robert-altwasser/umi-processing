@@ -30,7 +30,7 @@ rule fastqc:
     threads: 1
     resources:
         mem_mb="10G",
-        time="01:00:00"
+        time="03:00:00"
     wrapper:
         "v1.0.0/bio/fastqc"
 

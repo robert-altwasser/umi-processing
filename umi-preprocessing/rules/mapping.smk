@@ -9,6 +9,7 @@ rule map_reads1:
         temp("mapped/{sample}.woconsensus.bam")
     params:
         musage=config["picard"]["memoryusage"],
+        temp_file = temp("mapped/{sample}.temp.bam")
     log:
         "logs/mapping/{sample}.woconsensus.log"
     threads:
@@ -19,7 +20,7 @@ rule map_reads1:
     shell:
         """
         picard {params.musage} SamToFastq I={input.unmapped} F=/dev/stdout INTERLEAVE=true \
-        | bwa mem -p -t 8 {input.genome} /dev/stdin\
+        | bwa mem -p -t 8 {input.genome} /dev/stdin \
         | picard {params.musage} MergeBamAlignment \
         UNMAPPED={input.unmapped} ALIGNED=/dev/stdin O={output} R={input.genome} \
         SO=coordinate ALIGNER_PROPER_PAIR_FLAGS=true MAX_GAPS=-1 ORIENTATIONS=FR VALIDATION_STRINGENCY=SILENT &> {log}
@@ -57,10 +58,14 @@ rule ConsensusReads:
         "logs/fgbio/consensus_reads/{sample}.log"
     wrapper:
         "v1.0.0/bio/fgbio/callmolecularconsensusreads"
+####
+### Common errors:
+# "Error in writing fastq file /dev/stdout"
+# means the pipeline collapsed. Probably an error in MergeBamAlignment
 
 rule map_reads2:
     input:
-        unmapped="unmapped/{sample}.consensusreads.bam",
+        unmapped="unmapped/{sample}.consensusreads_sorted.bam",
         genome="refs/genome.fasta",
         genomeindex="refs/genome.fasta.fai",
         genomedict="refs/genome.dict",
@@ -83,7 +88,7 @@ rule map_reads2:
         | bwa mem -p -t 8 {input.genome} /dev/stdin \
         | picard {params.musage} MergeBamAlignment \
         UNMAPPED={input.unmapped} ALIGNED=/dev/stdin O={output} R={input.genome} \
-        SO=coordinate ALIGNER_PROPER_PAIR_FLAGS=true MAX_GAPS=-1 ORIENTATIONS=FR VALIDATION_STRINGENCY=SILENT &> {log}
+        SO=queryname CREATE_INDEX=true ALIGNER_PROPER_PAIR_FLAGS=true MAX_GAPS=-1 ORIENTATIONS=FR VALIDATION_STRINGENCY=SILENT &> {log}
         """
 
 rule FilterConsensusReads:
@@ -95,19 +100,29 @@ rule FilterConsensusReads:
         extra=config["fgbio"]["fextra"],
         min_base_quality=config["fgbio"]["fminq"],
         min_reads=[3],
-        ref="refs/genome.fasta"
+        ref="refs/genome.fasta",
+        musage=config["picard"]["memoryusage"],
     log:
         "logs/fgbio/filterconsensusreads/{sample}.log"
     threads: 1
     resources:
-        mem_mb="30G",
+        mem_mb="50G",
         time="01:00:00"
-    wrapper:
-        "v1.0.0/bio/fgbio/filterconsensusreads"
+    shell:
+        r"""
+        fgbio {params.musage} FilterConsensusReads \
+         -i {input} \
+         -o {output} \
+         -r {params.ref} \
+         --min-reads {params.min_reads} \
+         --min-base-quality {params.min_base_quality} \
+         &> {log}
+         """
 
 rule realignertargetcreator:
     input:
-        bam="mapped/{sample}.filtered.bam",
+        bam="mapped/{sample}.filtered_sorted.bam",
+        bam="mapped/{sample}.filtered_sorted.bam.bai",
         bed=config["reference"]["region_file"],
         ref="refs/genome.fasta",
         known="refs/known_indels.vcf.gz"

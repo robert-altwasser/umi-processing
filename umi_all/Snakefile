@@ -12,19 +12,22 @@ import importlib.util
 
 # ############ SETUP ##############################
 
-configfile: "../config/config1607.yaml"
+configfile: "../config/config1823.yaml"
 
 workdir: config["general"]["work_dir"]
 
 ### Get SAMPLES via SampleSheet
-# df = pd.read_csv(config["general"]["SampleSheet"], sep = ',', skiprows=13)
-# SAMPLES = list(df.iloc[:,1])
-# samples = SAMPLES
+df = pd.read_csv(config["general"]["SampleSheet"], sep = ',', skiprows=13)
+SAMPLES = list(df.iloc[:,1])
 
 ### Get SAMPLES via existing files
 SAMPLES = os.listdir(config["general"]["work_dir"] + "unmapped/")
 SAMPLES = list(filter(lambda x:'.unmapped.bam' in x, SAMPLES))
 SAMPLES = [s.replace('.unmapped.bam', '') for s in SAMPLES]
+
+### ONLY "CT" files
+SAMPLES = list(filter(lambda x:'CT' in x, SAMPLES))
+SAMPLES = "CT186"
 
 samples = SAMPLES
 
@@ -34,7 +37,7 @@ for sample in samples:
     input_bam[sample] = ''.join([config["general"]["work_dir"], "mapped/", str(sample), file_ending])
 ############ INCLUDES ##############################
 # include helper functions
-# include: "../umi-demultiplex/rules/demux.smk"
+include: "../umi-demultiplex/rules/demux.smk"
 
 include: "../umi-preprocessing/rules/resources.smk"
 include: "../umi-preprocessing/rules/mapping.smk"
@@ -63,11 +66,12 @@ wildcard_constraints:
 
 rule all:
     input:
-        # expand("unmapped/{sample}.unmapped.bam", sample=SAMPLES),
-        # expand("mapped/{sample}.realigned.bam", sample=SAMPLES),
+        expand("unmapped/{sample}.unmapped.bam", sample=SAMPLES),
+        expand("mapped/{sample}.consensusreads.bam", sample=SAMPLES),
+        expand("mapped/{sample}.realigned.bam", sample=SAMPLES),
         # "qc/multiqc_reads.html",
         # "qc/multiqc_alignments.html",
         # "filter/variantcalls.csv",
-        expand("vardict/{sample}.vcf", sample = SAMPLES),
+        # expand("vardict/{sample}.vcf", sample = SAMPLES),
 
 ###########################################################################

@@ -30,6 +30,21 @@ rule samtools_faidx:
     wrapper:
         "v1.0.0/bio/samtools/faidx"
 
+rule bam_sort:
+    input:
+        "{file}.bam"
+    output:
+        "{file}_sorted.bam"
+    resources:
+        mem_mb="20G",
+        time="00:30:00"
+    shell:
+        r"""
+        picard SortSam I={input} \
+        SORT_ORDER=queryname \
+        o={output}
+        """
+
 rule bwa_index:
     input:
         "refs/genome.fasta"
