@@ -30,19 +30,38 @@ rule samtools_faidx:
     wrapper:
         "v1.0.0/bio/samtools/faidx"
 
-rule bam_sort:
+rule query_bam_sort:
     input:
         "{file}.bam"
     output:
-        "{file}_sorted.bam"
+        "{file}_qsorted.bam"
     resources:
         mem_mb="20G",
         time="00:30:00"
+    log:
+        "logs/picard/query_bam_sort/{file}.log"
     shell:
         r"""
         picard SortSam I={input} \
         SORT_ORDER=queryname \
-        o={output}
+        o={output} &> {log}
+        """
+
+rule coordinate_bam_sort:
+    input:
+        "{file}.bam"
+    output:
+        "{file}_csorted.bam"
+    resources:
+        mem_mb="20G",
+        time="00:30:00"
+    log:
+        "logs/picard/coordinate_bam_sort/{file}.log"
+    shell:
+        r"""
+        picard SortSam I={input} \
+        SORT_ORDER=coordinate \
+        o={output} &> {log}
         """
 
 rule bwa_index:
@@ -75,9 +94,9 @@ rule create_dict:
 
 rule samtools_index:
     input:
-        "mapped/{sample}.bam"
+        "mapped/{file}.bam"
     output:
-        "mapped/{sample}.bam.bai"
+        "mapped/{file}.bam.bai"
     resources:
         mem_mb="2G",
         time="01:00:00"

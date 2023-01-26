@@ -11,17 +11,20 @@
 #SBATCH --output=/fast/users/altwassr_c/scratch/slurm_logs/%x.%j.out
 #SBATCH --error=/fast/users/altwassr_c/scratch/slurm_logs/%x.%j.err
 
+snakemake --unlock
+
 snakemake \
     --nt \
-    --jobs 30 \
+    --jobs 100 \
     --cluster-config ~/work/umi-data-processing/config/cluster_config.yaml \
     --profile=cubi-v1 \
     --restart-times 0 \
-    --rerun-incomplete \
     --keep-going \
+    --rerun-incomplete \
     --use-conda --conda-prefix=/fast/users/altwassr_c/work/conda-envs/
 # --touch \
 # --skip-script-cleanup \
 # --reason \
+    # --printshellcmds \
 
 # --until annovar \

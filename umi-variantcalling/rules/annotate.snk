@@ -144,7 +144,7 @@ rule combine_annotations:
         rs = f"scripts/CombineAnno.R"
     threads: 1
     resources:
-        time="00:30:00"
+        time="01:00:00"
     shell:
         r"""
         Rscript {params.sd}/{params.rs} {input.anno_edit} {input.primer} {input.hdr} {output}

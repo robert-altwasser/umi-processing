@@ -76,7 +76,7 @@ rule picard_collect_hs_metrics:
 
 rule multiqc_alignments:
     input:
-        expand("qc/{ctype}/{sample}.{ftype}.txt", sample=SAMPLES, ctype=["samtools-stats","hs_metrics"], ftype=["consensusreads","woconsensus","filtered","realigned"])
+        expand("qc/{ctype}/{sample}.{ftype}.txt", sample=SAMPLES, ctype=["samtools-stats","hs_metrics"], ftype=["woconsensus", "realigned"])
     output:
         "qc/multiqc_alignments.html"
     log:

@@ -17,8 +17,8 @@ configfile: "../config/config1823.yaml"
 workdir: config["general"]["work_dir"]
 
 ### Get SAMPLES via SampleSheet
-df = pd.read_csv(config["general"]["SampleSheet"], sep = ',', skiprows=13)
-SAMPLES = list(df.iloc[:,1])
+# df = pd.read_csv(config["general"]["SampleSheet"], sep = ',', skiprows=13)
+# SAMPLES = list(df.iloc[:,1])
 
 ### Get SAMPLES via existing files
 SAMPLES = os.listdir(config["general"]["work_dir"] + "unmapped/")
@@ -26,8 +26,18 @@ SAMPLES = list(filter(lambda x:'.unmapped.bam' in x, SAMPLES))
 SAMPLES = [s.replace('.unmapped.bam', '') for s in SAMPLES]
 
 ### ONLY "CT" files
-SAMPLES = list(filter(lambda x:'CT' in x, SAMPLES))
-SAMPLES = "CT186"
+# SAMPLES = list(filter(lambda x:'CT' in x, SAMPLES))
+# SAMPLES = list(filter(lambda x:'MM' in x, SAMPLES))
+# SAMPLES_temp = list(filter(lambda x:'AB' in x, SAMPLES))
+# SAMPLES_temp2 = list(filter(lambda x:'AP' in x, SAMPLES))
+SAMPLES_temp = list(filter(lambda x:'S-BeLOV-' in x, SAMPLES))
+SAMPLES_temp2 = list(filter(lambda x:'Tempus-BL-' in x, SAMPLES))
+SAMPLES_temp3 = list(filter(lambda x:'PatID' in x, SAMPLES))
+SAMPLES = SAMPLES_temp + SAMPLES_temp2 + SAMPLES_temp3
+
+SAMPLES.remove("S-BeLOV-125457")
+SAMPLES.remove("S-BeLOV-229598")
+SAMPLES.remove("S-BeLOV-218863")
 
 samples = SAMPLES
 
@@ -66,12 +76,12 @@ wildcard_constraints:
 
 rule all:
     input:
-        expand("unmapped/{sample}.unmapped.bam", sample=SAMPLES),
-        expand("mapped/{sample}.consensusreads.bam", sample=SAMPLES),
-        expand("mapped/{sample}.realigned.bam", sample=SAMPLES),
-        # "qc/multiqc_reads.html",
+        # expand("unmapped/{sample}.unmapped.bam", sample=SAMPLES),
+        # expand("mapped/{sample}.consensusreads.bam", sample=SAMPLES),
+        # expand("mapped/{sample}.realigned.bam", sample=SAMPLES),
+        # expand("vardict/{sample}.vcf", sample = SAMPLES),
+        "qc/multiqc_reads.html",
         # "qc/multiqc_alignments.html",
         # "filter/variantcalls.csv",
-        # expand("vardict/{sample}.vcf", sample = SAMPLES),
 
 ###########################################################################

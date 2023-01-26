@@ -65,7 +65,7 @@ rule ConsensusReads:
 
 rule map_reads2:
     input:
-        unmapped="unmapped/{sample}.consensusreads_sorted.bam",
+        unmapped="unmapped/{sample}.consensusreads_qsorted.bam",
         genome="refs/genome.fasta",
         genomeindex="refs/genome.fasta.fai",
         genomedict="refs/genome.dict",
@@ -121,8 +121,8 @@ rule FilterConsensusReads:
 
 rule realignertargetcreator:
     input:
-        bam="mapped/{sample}.filtered_sorted.bam",
-        bam="mapped/{sample}.filtered_sorted.bam.bai",
+        bam="mapped/{sample}.filtered_csorted.bam",
+        bam_index="mapped/{sample}.filtered_csorted.bam.bai",
         bed=config["reference"]["region_file"],
         ref="refs/genome.fasta",
         known="refs/known_indels.vcf.gz"
@@ -146,7 +146,8 @@ rule realignertargetcreator:
 
 rule indelrealigner:
     input:
-        bam="mapped/{sample}.filtered.bam",
+        bam="mapped/{sample}.filtered_csorted.bam",
+        bam_index="mapped/{sample}.filtered_csorted.bam.bai",
         bed=config["reference"]["region_file"],
         ref="refs/genome.fasta",
         known="refs/known_indels.vcf.gz",
