@@ -18,6 +18,7 @@ snakemake \
     --profile=cubi-v1 \
     --restart-times 1 \
     --rerun-incomplete \
+    --until fastq_to_bam \
     --keep-going \
     --use-conda --conda-prefix=/fast/users/altwassr_c/work/conda-envs/
 # --touch \
