@@ -1,22 +1,20 @@
 general:
-  work_dir_demux: "/data/gpfs-1/users/altwassr_c/scratch/P1519_2/demux"
-  work_dir_variantcalling: "/fast/users/altwassr_c/scratch/P1519_2/variantcalling/"
-  snakedir: "/fast/users/altwassr_c/work/umi-testing/umi-variantcalling/"
-  SampleSheet: "/data/gpfs-1/users/altwassr_c/scratch/data/P1519/SampleSheet_v2_template.csv"
+  work_dir: "/data/gpfs-1/users/altwassr_c/scratch/P1803/"
+  snakedir: "/fast/users/altwassr_c/work/umi-data-processing/umi-variantcalling/"
+  SampleSheet: "/data/gpfs-1/users/altwassr_c/work/sample_sheets/SampleSheet_P1803.csv"
   tmp_dir: "/data/gpfs-1/users/altwassr_c/scratch/tmp"
-  refgenome: "/fast/users/altwassr_c/work/refs/GRCh38.u2af1_fix.v1.2020_04_01.fa"
   demux: TRUE
+  control: FALSE
 
 reference:  
   genome: "/fast/users/altwassr_c/work/refs/GRCh38.u2af1_fix.v1.2020_04_01.fa"
   known_indels: "/fast/users/altwassr_c/work/umi-data-processing/umi-preprocessing/refs/dbsnp.vcf.gz"
-  bedfile: "/fast/users/altwassr_c/work/refs/merged_probe_file_DKMS_v5-hrd_1X_1p5X_hg38.bed"
   region_file: "/fast/users/altwassr_c/work/refs/merged_probe_file_DKMS_v5-hrd_1X_1p5X_hg38.bed"
 
 illumina:
-  basecall_dir: "/data/gpfs-1/users/altwassr_c/scratch/data/P1519/220609_A00643_0490_AH23CGDSX2/Data/Intensities/BaseCalls/"
-  readstructure: "Y150,I8Y9,I8Y8,Y150"
-  runbarcode: "2022"
+  basecall_dir: "/data/gpfs-1/users/altwassr_c/scratch/data/P1803/230120_A00643_0633_BHLNLNDSX5/Data/Intensities/BaseCalls/"
+  readstructure: "y151,i8y9,i8n*,y151"
+  runbarcode: "2023"
 
 picard:
   memoryusage: "-Xmx64g -Xms64g"
@@ -25,11 +23,11 @@ vardict:
   vaf: 0.001
 
 fgbio:
-  groupreads: "-s adjacency"
+  groupreads: "-Xmx20g -s adjacency"
   callconsensus: "-M 3"
   fextra: ""
   fminq: 5
-  readstructure: "8B 8B 150T 9M 150T"
+  readstructure: "8B 8B 151T 9M 151T"
 
 #### ABSOLUTE PATHS ############
 paths:
@@ -45,14 +43,16 @@ mpileup:
   MAPQ: 10 # -q in pileup
 annovar:
   build: hg38
-  path_to_humandb: /fast/users/altwassr_c/work/programme/annovar/humandb
+  path_to_humandb: /fast/groups/ag_damm/work/annovar/humandb/
   annofiles:
     - refGene
     - cytoBand
     - clinvar_20200316
     - dbnsfp35c
     - gnomad30_genome
+    - avsnp144
     - avsnp150
+    - snp155
     - cosmic92_coding
     - cosmic92_noncoding
     - revel

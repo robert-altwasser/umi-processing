@@ -35,8 +35,7 @@ rule GroupReads:
     params:
         extra=config["fgbio"]["groupreads"]
     resources:
-        mem="10G",
-        mem_mb="10G",
+        mem_mb="30G",
         time="02:00:00"
     log:
         "logs/fgbio/group_reads/{sample}.log"
