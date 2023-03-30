@@ -161,7 +161,7 @@ rule combine_samples:
         rs = f"scripts/MergeCalls.R"
     threads: 1
     resources:
-        time="00:20:00",
+        time="01:00:00",
         mem_mb=get_mem_30_10
     shell:
         r"""

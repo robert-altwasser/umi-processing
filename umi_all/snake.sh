@@ -1,7 +1,5 @@
 #!/bin/bash
 
-# export SNAKEMAKE_SLURM_DEBUG=1
-
 #SBATCH --job-name=variantcalling
 #SBATCH --ntasks=1
 #SBATCH --nodes=1
@@ -10,6 +8,11 @@
 #SBATCH --mem-per-cpu=24000M
 #SBATCH --output=/fast/users/altwassr_c/scratch/slurm_logs/%x.%j.out
 #SBATCH --error=/fast/users/altwassr_c/scratch/slurm_logs/%x.%j.err
+#SBATCH --mail-type=ALL
+#SBATCH --mail-user=robert.altwasser@charite.de
+
+
+timestamp=$(date +%s)
 
 snakemake --unlock
 
@@ -23,6 +26,10 @@ snakemake \
     --rerun-triggers mtime \
     --rerun-incomplete \
     --use-conda --conda-prefix=/fast/users/altwassr_c/work/conda-envs/
+#    2>&1 | tee /fast/users/altwassr_c/scratch/slurm_logs/${timestamp}.log
+
+# mail -s "snakemake finished" robert.altwasser@charite.com < /fast/users/altwassr_c/scratch/slurm_logs/${timestamp}.log
+
 # --touch \
 # --skip-script-cleanup \
 # --reason \
