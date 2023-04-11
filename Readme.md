@@ -5,9 +5,17 @@
 ## Sample sheet
 
 To demultiplex Illumina basecalls into different samples, `bcl2fastq` can be used ([>LINK<](https://emea.support.illumina.com/sequencing/sequencing_software/bcl2fastq-conversion-software.html)). It has to be executed in the base directory of the sequencing run (the one with the `RunInfo.xml` in it). A `SampleSheet.csv` has to be created containing the (7') barcode indexes for each sample. If UMIs are presend, their length can be given in sample sheet.
-For the demultiplexing to run, we need a sample sheet. An template can be downloaded here [>LINK<](https://sapac.support.illumina.com/downloads/sample-sheet-v2-template.html)
+For the demultiplexing to run, we need a sample sheet. A template can be downloaded here [>LINK<](https://sapac.support.illumina.com/downloads/sample-sheet-v2-template.html)
 
-Here is an example
+Let's say the *Project Registration* form has the following format:
+
+| Library order number | pool name   | Library  Code/Name | I7_Index_ID | I7_Index          | I5_Index_ID | I5_Index | … | Remarks |
+|----------------------|-------------|--------------------|-------------|-------------------|-------------|----------|---|---------|
+| 1                    | P1557_BL_01 | S-BeLOV-248164     | IDT8_i7_1   | CTGATCGTNNNNNNNNN | IDT8_i5_1   | ATATGCGC | … | Lane 1  |
+| 2                    | P1557_BL_01 | S-BeLOV-248536     | IDT8_i7_2   | ACTCTCGANNNNNNNNN | IDT8_i5_2   | TGGTACAG | … | Lane 1  |
+
+the corresponding sample sheet would look like this:
+
 
 ```
 [Header],,,
@@ -27,9 +35,9 @@ Lane,Sample_ID,Sample_Name,index,index2
 1,S-BeLOV-248164,S-BeLOV-248164,CTGATCGT,GCGCATAT
 1,S-BeLOV-248536,S-BeLOV-248536,ACTCTCGA,CTGTACCA
 ```
-
-The information comes from the library file.
-**The index2 has to be the *reverse complement!***. This can be done using this link [>LINK<](https://arep.med.harvard.edu/labgc/adnan/projects/Utilities/revcomp.html)
+- The information for the [Reads] section 
+- Please note the *NNNNNNNNN* in the I7_Index are removed
+- the *index2*, which holds the I5_Index is ***reverse complement!***. This can be done using this link [>LINK<](https://arep.med.harvard.edu/labgc/adnan/projects/Utilities/revcomp.html)
 
 ## config file
 
@@ -41,36 +49,36 @@ This file has to give the paths to different annotation files. Especially import
 
 - reference:
     - paths to the reference genome and annotation files
-- readstructure: This has to be adjusted to the run. see below
+- readstructure: This has to be adjusted to the run. See below
 - region_file: make sure you have the correct target file
 - picard-> memoryusage: Adjust for bigger datasets
 
 ### Readstructure
 
-The *readstructure* tells the demultiplexer which part of the reads is an adapter, and what is the sequence. Information about this can be found in `RunInfo.txt` and the meta data file with the barcodes.
+The *readstructure* tells the demultiplexer which part of the reads is an adapter, and what is the sequence. Information about this can be found in `RunInfo.txt` and the meta data file with the barcodes. Please note that the first index also contain the UMIs
 
 ```
-<Read Number="1" NumCycles="151" IsIndexedRead="N"/>
-<Read Number="2" NumCycles="8" IsIndexedRead="Y"/>
-<Read Number="3" NumCycles="10" IsIndexedRead="Y"/>
-<Read Number="4" NumCycles="151" IsIndexedRead="N"/>
+<Read Number="1" NumCycles="148" IsIndexedRead="N"/>
+<Read Number="2" NumCycles="17" IsIndexedRead="Y"/>
+<Read Number="3" NumCycles="8" IsIndexedRead="Y"/>
+<Read Number="4" NumCycles="148" IsIndexedRead="N"/>
 ```
 
-Means:
+Means (in `bcl2fastq` syntax):
 
 ```
-151T8B10M8B151T
+readstructure: "y148,i8y9,i8,y148"
 ```
 
-- `151T`: 151bp transcript
-- `8B`: 8bp barcode sample
-- `10M`: 10bp barcode molecular (UMI)
+- `y148`: 184bp transcript
+- `i8`: 8bp barcode sample
+- `y9`: 9bp index molecular (UMI)
 - also `S`: skip
 
-If you have no information, one can also just convert the entire sequences to fastq without de-multiplexing and without trimming. Note that you need to set the entire read length to template. **151T** in this example. Then you can `grep` the barcodes and stuff.
+If you have no information, one can also just convert the entire sequences to fastq without de-multiplexing and without trimming. Note that you need to set the entire read length to template. **148T** in this example. Then you can `grep` the barcodes and stuff.
 
 ```
-picard  IlluminaBasecallsToFastq B=./{MY_RUN}/Data/Intensities/BaseCalls/ L=1 RS=151T INCLUDE_NON_PF_READS=false COMPRESS_OUTPUTS=false RUN_BARCODE=MY_RUN OUTPUT_PREFIX=MY_RUN READ_NAME_FORMAT=ILLUMINA  NUM_PROCESSORS=1 IGNORE_UNEXPECTED_BARCODES=false FORCE_GC=false
+picard  IlluminaBasecallsToFastq B=./{MY_RUN}/Data/Intensities/BaseCalls/ L=1 RS=148T INCLUDE_NON_PF_READS=false COMPRESS_OUTPUTS=false RUN_BARCODE=MY_RUN OUTPUT_PREFIX=MY_RUN READ_NAME_FORMAT=ILLUMINA  NUM_PROCESSORS=1 IGNORE_UNEXPECTED_BARCODES=false FORCE_GC=false
 ```
 
 # Preprocessing
@@ -165,7 +173,7 @@ Clonal hematopoiesis (CH)
 
 Demultiplexing
 
-: The raw sequencing data is put into (yet) unmapped SAM/BAM files per sample according to the barcodes.### 2. Variant calling
+: The raw sequencing data is put into (yet) unmapped SAM/BAM files per sample according to the barcodes.
 
 # Troubleshooting
 
