@@ -16,7 +16,6 @@ Let's say the *Project Registration* form has the following format:
 
 the corresponding sample sheet would look like this:
 
-
 ```
 [Header],,,
 FileFormatVersion,2,,
@@ -97,7 +96,7 @@ picard  IlluminaBasecallsToFastq B=./{MY_RUN}/Data/Intensities/BaseCalls/ L=1 RS
     
 6.  **local realignment**:
     
-    - Around known indels, local realignments are performend. Especially towards the end of reads, "mismatch" is cheaper than gap opening, leading to false positives.
+    - Around known indels, local realignments are performed. Especially towards the end of reads, "mismatch" is cheaper than gap opening, leading to false positives.
     - genome aligners can only consider each read independently
     - local realignment considers all reads spanning a given position
         - parsimonious alignment of reads
@@ -130,6 +129,7 @@ picard  IlluminaBasecallsToFastq B=./{MY_RUN}/Data/Intensities/BaseCalls/ L=1 RS
     - ANNOVAR: adds gene/region/variant based annotation [>LINK<](https://annovar.openbioinformatics.org/en/latest/)
         - COSMIC: *Catalogue Of Somatic Mutations In Cancer*
         - dbSNP: known human SNP data base by *NCBI*
+        - clinVAR: known mutations in a clinical context
     - HDR: *High Discrepancy Region*; regions with many localized differences
 
 ## Filtering of results
