@@ -12,48 +12,38 @@ import importlib.util
 
 # ############ SETUP ##############################
 
-configfile: "../config/config3090.yaml"
+configfile: "../config/config1557.yaml"
 
 workdir: config["general"]["work_dir"]
 
 ### Get SAMPLES via SampleSheet
-df = pd.read_csv(config["general"]["SampleSheet"], sep = ',', skiprows=13)
-SAMPLES = list(df.iloc[:,1])
+# df = pd.read_csv(config["general"]["SampleSheet"], sep = ',', skiprows=13)
+# SAMPLES = list(df.iloc[:,1])
 
 ### Get SAMPLES via existing files
 # SAMPLES = os.listdir(config["general"]["work_dir"] + "unmapped/")
 # SAMPLES = list(filter(lambda x:'.unmapped.bam' in x, SAMPLES))
 # SAMPLES = [s.replace('.unmapped.bam', '') for s in SAMPLES]
 
-### ONLY "CT" files
-# SAMPLES = list(filter(lambda x:'CT' in x, SAMPLES))
-# SAMPLES = list(filter(lambda x:'MM' in x, SAMPLES))
-# SAMPLES_temp = list(filter(lambda x:'AB' in x, SAMPLES))
-# SAMPLES_temp2 = list(filter(lambda x:'AP' in x, SAMPLES))
-# SAMPLES_temp = list(filter(lambda x:'S-BeLOV-' in x, SAMPLES))
-# SAMPLES_temp2 = list(filter(lambda x:'Tempus-BL-' in x, SAMPLES))
-# SAMPLES_temp3 = list(filter(lambda x:'PatID' in x, SAMPLES))
-# SAMPLES = SAMPLES_temp + SAMPLES_temp2 + SAMPLES_temp3
- 
-# SAMPLES.remove("OvCA_50_cf_C1D1")
-# SAMPLES.remove("OvCA_48_cf_C1D1")
-# SAMPLES.remove("OvCA_44_cf_C1D1")
-# SAMPLES.remove("OvCA_93_cf_C1D1")
+SAMPLES = os.listdir(config["general"]["work_dir"] + "mapped/")
+SAMPLES = list(filter(lambda x:'.realigned.bam' in x, SAMPLES))
+SAMPLES = list(filter(lambda x:'.bai' not in x, SAMPLES))
+SAMPLES = [s.replace('.realigned.bam', '') for s in SAMPLES]
 
 samples = SAMPLES
-
+ 
 file_ending = ".realigned.bam"
 input_bam = {}
 for sample in samples:
     input_bam[sample] = ''.join([config["general"]["work_dir"], "mapped/", str(sample), file_ending])
 ############ INCLUDES ##############################
 # include helper functions
-include: "../umi-demultiplex/rules/demux.smk"
+# include: "../umi-demultiplex/rules/demux.smk"
 
-include: "../umi-preprocessing/rules/resources.smk"
-include: "../umi-preprocessing/rules/mapping.smk"
-include: "../umi-preprocessing/rules/qc.smk"
-include: "../umi-preprocessing/rules/tools.smk"
+# include: "../umi-preprocessing/rules/resources.smk"
+# include: "../umi-preprocessing/rules/mapping.smk"
+# include: "../umi-preprocessing/rules/qc.smk"
+# include: "../umi-preprocessing/rules/tools.smk"
 
 include: "../umi-variantcalling/rules/io.snk"
 include: "../umi-variantcalling/rules/utils.snk"
@@ -61,7 +51,6 @@ include: "../umi-variantcalling/rules/resources.smk"
 include: "../umi-variantcalling/rules/variantcalling.snk"
 include: "../umi-variantcalling/rules/annotate.snk"
 include: "../umi-variantcalling/rules/filterbam.snk"
-
 
 # specified wildcards have to match the regex
 wildcard_constraints:
@@ -77,12 +66,13 @@ wildcard_constraints:
 
 rule all:
     input:
-        expand("unmapped/{sample}.unmapped.bam", sample=SAMPLES),
-        expand("mapped/{sample}.consensusreads.bam", sample=SAMPLES),
-        expand("mapped/{sample}.realigned.bam", sample=SAMPLES),
-        "qc/multiqc_reads.html",
-        "qc/multiqc_alignments.html",
         expand("vardict/{sample}.vcf", sample = SAMPLES),
-        "filter/variantcalls.csv",
+        # expand("unmapped/{sample}.unmapped.bam", sample=SAMPLES),
+        # "qc/multiqc_reads.html", ### also creates sample.fastq
+        # expand("mapped/{sample}.consensusreads.bam", sample=SAMPLES),
+        # expand("mapped/{sample}.realigned.bam", sample=SAMPLES),
+        # "qc/multiqc_alignments.html",
+        # expand("vardict/{sample}.vcf", sample = SAMPLES),
+        # "filter/variantcalls.csv",
 
 ###########################################################################

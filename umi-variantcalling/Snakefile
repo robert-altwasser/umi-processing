@@ -8,7 +8,7 @@ import importlib.util
 
 # ############ SETUP ##############################
 
-configfile: "../config/config1686.yaml"
+configfile: "../config/config1413.yaml"
 
 workdir: config["general"]["work_dir"] + "variantcalling/"
 
@@ -50,7 +50,7 @@ wildcard_constraints:
 
 rule all:
     input:
-        "filter/variantcalls.csv"
-        # expand("vardict/{sample}.vcf", sample = samples),
+        expand("vardict/{sample}.vcf", sample = samples)
+        #"filter/variantcalls.csv"
 
 ###########################################################################

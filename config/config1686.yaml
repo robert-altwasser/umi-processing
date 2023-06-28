@@ -1,5 +1,5 @@
 general:
-  work_dir: "/data/gpfs-1/users/altwassr_c/scratch/P1686/"
+  work_dir: "/data/gpfs-1/users/altwassr_c/scratch/belove/baem/P1686/"
   snakedir: "/fast/users/altwassr_c/work/umi-data-processing/umi-variantcalling/"
   SampleSheet: "/data/gpfs-1/users/altwassr_c/work/sample_sheets/SampleSheet_P1686.csv"
   tmp_dir: "/data/gpfs-1/users/altwassr_c/scratch/tmp"
