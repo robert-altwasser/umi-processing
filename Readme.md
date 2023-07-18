@@ -4,15 +4,15 @@
 
 ## Sample sheet
 
-To demultiplex Illumina basecalls into different samples, `bcl2fastq` can be used ([>LINK<](https://emea.support.illumina.com/sequencing/sequencing_software/bcl2fastq-conversion-software.html)). It has to be executed in the base directory of the sequencing run (the one with the `RunInfo.xml` in it). A `SampleSheet.csv` has to be created containing the (7') barcode indexes for each sample. If UMIs are presend, their length can be given in sample sheet.
+To demultiplex Illumina basecalls into different samples, `bcl2fastq` can be used ([>LINK<](https://emea.support.illumina.com/sequencing/sequencing_software/bcl2fastq-conversion-software.html)). It has to be executed in the base directory of the sequencing run (the one with the `RunInfo.xml` in it). A `SampleSheet.csv` has to be created containing the (7') barcode indexes for each sample. If UMIs are present, their length can be given in sample sheet.
 For the demultiplexing to run, we need a sample sheet. A template can be downloaded here [>LINK<](https://sapac.support.illumina.com/downloads/sample-sheet-v2-template.html)
 
 Let's say the *Project Registration* form has the following format:
 
-| Library order number | pool name   | Library  Code/Name | I7_Index_ID | I7_Index          | I5_Index_ID | I5_Index | … | Remarks |
-|----------------------|-------------|--------------------|-------------|-------------------|-------------|----------|---|---------|
-| 1                    | P1557_BL_01 | S-BeLOV-248164     | IDT8_i7_1   | CTGATCGTNNNNNNNNN | IDT8_i5_1   | ATATGCGC | … | Lane 1  |
-| 2                    | P1557_BL_01 | S-BeLOV-248536     | IDT8_i7_2   | ACTCTCGANNNNNNNNN | IDT8_i5_2   | TGGTACAG | … | Lane 1  |
+| Library order number | pool name   | Library  Code/Name | I7_Index_ID | I7_Index          | I5_Index_ID | I5_Index | …   | Remarks |
+| -------------------- | ----------- | ------------------ | ----------- | ----------------- | ----------- | -------- | --- | ------- |
+| 1                    | P1557_BL_01 | S-BeLOV-248164     | IDT8_i7_1   | CTGATCGTNNNNNNNNN | IDT8_i5_1   | ATATGCGC | …   | Lane 1  |
+| 2                    | P1557_BL_01 | S-BeLOV-248536     | IDT8_i7_2   | ACTCTCGANNNNNNNNN | IDT8_i5_2   | TGGTACAG | …   | Lane 2  |
 
 the corresponding sample sheet would look like this:
 
@@ -32,9 +32,9 @@ Read2Cycles,148,,
 [Data],,,
 Lane,Sample_ID,Sample_Name,index,index2
 1,S-BeLOV-248164,S-BeLOV-248164,CTGATCGT,GCGCATAT
-1,S-BeLOV-248536,S-BeLOV-248536,ACTCTCGA,CTGTACCA
+2,S-BeLOV-248536,S-BeLOV-248536,ACTCTCGA,CTGTACCA
 ```
-- The information for the [Reads] section 
+- The information for the [Reads] section can be found in the *project_registration_form* or *RunInfo.xml*
 - Please note the *NNNNNNNNN* in the I7_Index are removed
 - the *index2*, which holds the I5_Index is ***reverse complement!***. This can be done using this link [>LINK<](https://arep.med.harvard.edu/labgc/adnan/projects/Utilities/revcomp.html)
 
@@ -188,5 +188,5 @@ Demultiplexing
     - 5' indexes not reverse complement
 
 - `XX.unmapped.bam` files remain empty:
+    - indexes in `library_param.csv` and `barcode_params` don't match
     - check `picard` log for `picard.PicardException: Read records with barcode CGCAATCTNNNNNNNNNACAGGCAT, but this barcode was not expected. (Is it referenced in the parameters file?)`
-        - indexes in `library_param.csv` and `barcode_params` don't match
