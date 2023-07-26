@@ -86,7 +86,7 @@ picard  IlluminaBasecallsToFastq B=./{MY_RUN}/Data/Intensities/BaseCalls/ L=1 RS
 
 1.  **map_reads1**: The BAM files are converted to FASTQ, and then the FASTQ files are mapped to the genome.
     
-2.  **Group reads**: Sequences are grouped accoring to their UMI sequence.
+2.  **Group reads**: Sequences are grouped according to their UMI sequence.
     
 3.  **Consensus reads**: PCR can introduce errors, which can be indistinguishable from *real* mutations. Therefor, the reads are grouped by their UMIs, and only the consensus sequences are kept. Here, Consensus reads filters all reads that don't appear *at least three times per UMI*.
     
@@ -160,7 +160,7 @@ CDR
 : commonly deleted region
 
 VAF
-: variant allel frequency
+: variant allele frequency
 
 UMI Adapters
 : PCR can introduce errors, which can be indistinguishable from *real* mutations. Therefor, every strand of sequenced DNA is marked with a unique molecular identifier (UMI). After PCR amplification, the reads are grouped by their UMIs, and only the consensus sequences are kept.
@@ -168,11 +168,9 @@ UMI Adapters
 ![Schematic of UMI adapters. Question: is the "orange" example correct?](images/umis.png)
 
 Clonal hematopoiesis (CH)
-
 : somatic mutation in leukemia-associated genes in the blood of individuals without hematologic disease.
 
 Demultiplexing
-
 : The raw sequencing data is put into (yet) unmapped SAM/BAM files per sample according to the barcodes.
 
 # Troubleshooting
