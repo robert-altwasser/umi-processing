@@ -151,14 +151,15 @@ picard  IlluminaBasecallsToFastq B=./{MY_RUN}/Data/Intensities/BaseCalls/ L=1 RS
 If there are different target files for the samples of the analysis, I recommend the following workflow:
 
 1. demultiplex all files together
-    - target `expand("unmapped/{sample}.unmapped.bam", sample=SAMPLES)`
+    - target `"qc/multiqc_reads.html"`
 2. set desired target file in config (`region_file`)
 3. only leave samples belonging to this target file in the sample sheet
 4. run analysis till Variantcalling 
     - target `expand("vardict/{sample}.vcf", sample = SAMPLES)`
-5. repeat 2-4 with other target file
-6. add all samples again to sample sheet
-7. run analysis till the end
+5. move/rename `qc/multiqc_alignment.html` since it will be overwriten
+6. repeat 2-4 with other target file
+7. add all samples again to sample sheet
+8. run analysis till the end
     - target `"filter/variantcalls.csv"`
 
 # Glossary
