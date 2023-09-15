@@ -157,9 +157,10 @@ If there are different target files for the samples of the analysis, I recommend
 4. run analysis till Variantcalling 
     - target `expand("vardict/{sample}.vcf", sample = SAMPLES)`
 5. move/rename `qc/multiqc_alignment.html` since it will be overwriten
-6. repeat 2-4 with other target file
-7. add all samples again to sample sheet
-8. run analysis till the end
+6. remove `refs/region.intervals`!
+7. repeat 2-4 with other target file
+8. add all samples again to sample sheet
+9. run analysis till the end
     - target `"filter/variantcalls.csv"`
 
 # Glossary
