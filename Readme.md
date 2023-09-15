@@ -146,22 +146,22 @@ picard  IlluminaBasecallsToFastq B=./{MY_RUN}/Data/Intensities/BaseCalls/ L=1 RS
     - **still a lot of visual verification necessary (IGV)**
 
 
-# analyse projects with different target files
+# Analyse projects with different target files
 
 If there are different target files for the samples of the analysis, I recommend the following workflow:
 
 1. demultiplex all files together
-    - target `"qc/multiqc_reads.html"`
+    - snakemake target `"qc/multiqc_reads.html"`
 2. set desired target file in config (`region_file`)
 3. only leave samples belonging to this target file in the sample sheet
-4. run analysis till Variantcalling 
-    - target `expand("vardict/{sample}.vcf", sample = SAMPLES)`
-5. move/rename `qc/multiqc_alignment.html` since it will be overwriten
-6. remove `refs/region.intervals`!
-7. repeat 2-4 with other target file
+4. run analysis till variant calling 
+    - snakemake target `expand("vardict/{sample}.vcf", sample = SAMPLES)`
+5. move/rename file `qc/multiqc_alignment.html` since it will be overwritten
+6. remove file `refs/region.intervals`!
+7. repeat 2-6 with other target file
 8. add all samples again to sample sheet
 9. run analysis till the end
-    - target `"filter/variantcalls.csv"`
+    - snakemake target `"filter/variantcalls.csv"`
 
 # Glossary
 
