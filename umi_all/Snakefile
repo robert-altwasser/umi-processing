@@ -12,38 +12,40 @@ import importlib.util
 
 # ############ SETUP ##############################
 
-configfile: "../config/config1557.yaml"
+configfile: "../config/config3353.yaml"
+# configfile: "../config/config3353_CLL.yaml"
+# configfile: "../config/config3353_belov.yaml"
 
 workdir: config["general"]["work_dir"]
 
 ### Get SAMPLES via SampleSheet
-# df = pd.read_csv(config["general"]["SampleSheet"], sep = ',', skiprows=13)
-# SAMPLES = list(df.iloc[:,1])
+df = pd.read_csv(config["general"]["SampleSheet"], sep = ',', skiprows=13)
+SAMPLES = list(df.iloc[:,1])
 
 ### Get SAMPLES via existing files
 # SAMPLES = os.listdir(config["general"]["work_dir"] + "unmapped/")
 # SAMPLES = list(filter(lambda x:'.unmapped.bam' in x, SAMPLES))
 # SAMPLES = [s.replace('.unmapped.bam', '') for s in SAMPLES]
 
-SAMPLES = os.listdir(config["general"]["work_dir"] + "mapped/")
-SAMPLES = list(filter(lambda x:'.realigned.bam' in x, SAMPLES))
-SAMPLES = list(filter(lambda x:'.bai' not in x, SAMPLES))
-SAMPLES = [s.replace('.realigned.bam', '') for s in SAMPLES]
+# SAMPLES = os.listdir(config["general"]["work_dir"] + "mapped/")
+# SAMPLES = list(filter(lambda x:'.realigned.bam' in x, SAMPLES))
+# SAMPLES = list(filter(lambda x:'.bai' not in x, SAMPLES))
+# SAMPLES = [s.replace('.realigned.bam', '') for s in SAMPLES]
 
 samples = SAMPLES
  
-file_ending = ".realigned.bam"
-input_bam = {}
-for sample in samples:
-    input_bam[sample] = ''.join([config["general"]["work_dir"], "mapped/", str(sample), file_ending])
-############ INCLUDES ##############################
+# file_ending = ".realigned.bam"
+# input_bam = {}
+# for sample in samples:
+#     input_bam[sample] = ''.join([config["general"]["work_dir"], "mapped/", str(sample), file_ending])
+# ############ INCLUDES ##############################
 # include helper functions
-# include: "../umi-demultiplex/rules/demux.smk"
+include: "../umi-demultiplex/rules/demux.smk"
 
-# include: "../umi-preprocessing/rules/resources.smk"
-# include: "../umi-preprocessing/rules/mapping.smk"
-# include: "../umi-preprocessing/rules/qc.smk"
-# include: "../umi-preprocessing/rules/tools.smk"
+include: "../umi-preprocessing/rules/resources.smk"
+include: "../umi-preprocessing/rules/mapping.smk"
+include: "../umi-preprocessing/rules/qc.smk"
+include: "../umi-preprocessing/rules/tools.smk"
 
 include: "../umi-variantcalling/rules/io.snk"
 include: "../umi-variantcalling/rules/utils.snk"
@@ -66,13 +68,12 @@ wildcard_constraints:
 
 rule all:
     input:
-        expand("vardict/{sample}.vcf", sample = SAMPLES),
+        "qc/multiqc_reads.html", ### also creates sample.fastq,
+        "qc/multiqc_alignments.html",
         # expand("unmapped/{sample}.unmapped.bam", sample=SAMPLES),
-        # "qc/multiqc_reads.html", ### also creates sample.fastq
-        # expand("mapped/{sample}.consensusreads.bam", sample=SAMPLES),
         # expand("mapped/{sample}.realigned.bam", sample=SAMPLES),
-        # "qc/multiqc_alignments.html",
         # expand("vardict/{sample}.vcf", sample = SAMPLES),
-        # "filter/variantcalls.csv",
+        # expand("mapped/{sample}.consensusreads.bam", sample=SAMPLES),
+        "filter/variantcalls.csv",
 
 ###########################################################################

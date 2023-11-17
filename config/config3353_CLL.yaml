@@ -1,0 +1,83 @@
+general:
+  work_dir: "/data/gpfs-1/users/altwassr_c/scratch/P3353/"
+  snakedir: "/fast/users/altwassr_c/work/umi-data-processing/umi-variantcalling/"
+  SampleSheet: "/data/gpfs-1/users/altwassr_c/work/sample_sheets/SampleSheet_P3353.csv"
+  tmp_dir: "/data/gpfs-1/users/altwassr_c/scratch/tmp"
+  demux: TRUE
+  control: FALSE
+
+reference:  
+  genome: "/fast/users/altwassr_c/work/refs/GRCh38.u2af1_fix.v1.2020_04_01.fa"
+  known_indels: "/fast/users/altwassr_c/work/umi-data-processing/umi-preprocessing/refs/dbsnp.vcf.gz"
+  region_file: "/fast/users/altwassr_c/work/refs/probes_merged_Charite_CH-CLL_TE-91254749_hg38.bed"
+
+illumina:
+  basecall_dir: "/data/gpfs-1/users/altwassr_c/scratch/data/P3353/230908_A00643_0763_BH7WH7DSX5/Data/Intensities/BaseCalls/"
+  readstructure: "y148,i8y9,i8n*,y148"
+  runbarcode: "2023"
+
+picard:
+  memoryusage: "-Xmx64g -Xms64g"
+
+vardict:
+  vaf: 0.001
+
+fgbio:
+  groupreads: "-Xmx20g -s adjacency"
+  callconsensus: "-M 3"
+  fextra: ""
+  fminq: 5
+  readstructure: "8B 8B 148T 9M 148T"
+
+#### ABSOLUTE PATHS ############
+paths:
+  mystatic: /fast/groups/ag_damm/work/ref/
+  bihstatic: /fast/projects/cubit/current/static_data
+  scripts: scripts/ # folder relative to snakedir
+
+#### TOOLS SECTION ##############
+tools:
+  annovar: perl /fast/users/altwassr_c/work/programme/annovar
+mpileup:
+  Q: 20   # base quality
+  MAPQ: 10 # -q in pileup
+annovar:
+  build: hg38
+  path_to_humandb: /fast/groups/ag_damm/work/annovar/humandb/
+  annofiles:
+    - refGene
+    - cytoBand
+    - clinvar_20200316
+    - dbnsfp35c
+    - gnomad30_genome
+    - avsnp144
+    - avsnp150
+    - snp155
+    - cosmic92_coding
+    - cosmic92_noncoding
+    - revel
+    - nci60
+edit:
+  extended_output: False
+  candidate_list: /fast/users/altwassr_c/work/umi-data-processing/umi-variantcalling/info/AML_candidates.txt
+  driver_list: /fast/users/altwassr_c/work/umi-data-processing/umi-variantcalling/info/AML_drivers.txt
+  CHIP_list: /fast/users/altwassr_c/work/umi-data-processing/umi-variantcalling/info/CHIP_mut.txt
+  normals: /fast/users/altwassr_c/work/umi-data-processing/umi-variantcalling/ref/normal_bam_aml.txt
+filter_bam:
+    threads: 4
+    stringency_for_IGVnav: moderate
+    padding: 200
+    folder: filterbam
+primer3:  # is applied after filter step 1
+  threads: 10
+  min_size: 120
+  max_size: 220
+  center_offSet: 5 # how much offSet primer pairs can
+  use_primer_list: ''
+  split: "/data/gpfs-1/users/altwassr_c/work/refs/split_hg38_u2af1_fix"
+HDR:
+  threads: 2
+  min_HDR_count: 1 # minimum lanes around mutation to make it a putative HDR
+  min_similarity: .85 # which similarities to consider as HDR
+  padding: 150  # range around mutation to be scanned
+  min_q: 20 # minimum base quality to be used for HDR-calculation
