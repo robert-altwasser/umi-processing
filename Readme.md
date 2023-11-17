@@ -4,15 +4,15 @@
 
 ## Sample sheet
 
-To demultiplex Illumina basecalls into different samples, `bcl2fastq` can be used ([>LINK<](https://emea.support.illumina.com/sequencing/sequencing_software/bcl2fastq-conversion-software.html)). It has to be executed in the base directory of the sequencing run (the one with the `RunInfo.xml` in it). A `SampleSheet.csv` has to be created containing the (7') barcode indexes for each sample. If UMIs are presend, their length can be given in sample sheet.
+To demultiplex Illumina basecalls into different samples, `bcl2fastq` can be used ([>LINK<](https://emea.support.illumina.com/sequencing/sequencing_software/bcl2fastq-conversion-software.html)). It has to be executed in the base directory of the sequencing run (the one with the `RunInfo.xml` in it). A `SampleSheet.csv` has to be created containing the (7') barcode indexes for each sample. If UMIs are present, their length can be given in sample sheet.
 For the demultiplexing to run, we need a sample sheet. A template can be downloaded here [>LINK<](https://sapac.support.illumina.com/downloads/sample-sheet-v2-template.html)
 
 Let's say the *Project Registration* form has the following format:
 
-| Library order number | pool name   | Library  Code/Name | I7_Index_ID | I7_Index          | I5_Index_ID | I5_Index | … | Remarks |
-|----------------------|-------------|--------------------|-------------|-------------------|-------------|----------|---|---------|
-| 1                    | P1557_BL_01 | S-BeLOV-248164     | IDT8_i7_1   | CTGATCGTNNNNNNNNN | IDT8_i5_1   | ATATGCGC | … | Lane 1  |
-| 2                    | P1557_BL_01 | S-BeLOV-248536     | IDT8_i7_2   | ACTCTCGANNNNNNNNN | IDT8_i5_2   | TGGTACAG | … | Lane 1  |
+| Library order number | pool name   | Library  Code/Name | I7_Index_ID | I7_Index          | I5_Index_ID | I5_Index | …   | Remarks |
+| -------------------- | ----------- | ------------------ | ----------- | ----------------- | ----------- | -------- | --- | ------- |
+| 1                    | P1557_BL_01 | S-BeLOV-248164     | IDT8_i7_1   | CTGATCGTNNNNNNNNN | IDT8_i5_1   | ATATGCGC | …   | Lane 1  |
+| 2                    | P1557_BL_01 | S-BeLOV-248536     | IDT8_i7_2   | ACTCTCGANNNNNNNNN | IDT8_i5_2   | TGGTACAG | …   | Lane 2  |
 
 the corresponding sample sheet would look like this:
 
@@ -32,9 +32,9 @@ Read2Cycles,148,,
 [Data],,,
 Lane,Sample_ID,Sample_Name,index,index2
 1,S-BeLOV-248164,S-BeLOV-248164,CTGATCGT,GCGCATAT
-1,S-BeLOV-248536,S-BeLOV-248536,ACTCTCGA,CTGTACCA
+2,S-BeLOV-248536,S-BeLOV-248536,ACTCTCGA,CTGTACCA
 ```
-- The information for the [Reads] section 
+- The information for the [Reads] section can be found in the *project_registration_form* or *RunInfo.xml*
 - Please note the *NNNNNNNNN* in the I7_Index are removed
 - the *index2*, which holds the I5_Index is ***reverse complement!***. This can be done using this link [>LINK<](https://arep.med.harvard.edu/labgc/adnan/projects/Utilities/revcomp.html)
 
@@ -86,7 +86,7 @@ picard  IlluminaBasecallsToFastq B=./{MY_RUN}/Data/Intensities/BaseCalls/ L=1 RS
 
 1.  **map_reads1**: The BAM files are converted to FASTQ, and then the FASTQ files are mapped to the genome.
     
-2.  **Group reads**: Sequences are grouped accoring to their UMI sequence.
+2.  **Group reads**: Sequences are grouped according to their UMI sequence.
     
 3.  **Consensus reads**: PCR can introduce errors, which can be indistinguishable from *real* mutations. Therefor, the reads are grouped by their UMIs, and only the consensus sequences are kept. Here, Consensus reads filters all reads that don't appear *at least three times per UMI*.
     
@@ -145,6 +145,24 @@ picard  IlluminaBasecallsToFastq B=./{MY_RUN}/Data/Intensities/BaseCalls/ L=1 RS
     - ...
     - **still a lot of visual verification necessary (IGV)**
 
+
+# Analyse projects with different target files
+
+If there are different target files for the samples of the analysis, I recommend the following workflow:
+
+1. demultiplex all files together
+    - snakemake target `"qc/multiqc_reads.html"`
+2. set desired target file in config (`region_file`)
+3. only leave samples belonging to this target file in the sample sheet
+4. run analysis till variant calling 
+    - snakemake target `expand("vardict/{sample}.vcf", sample = SAMPLES)`
+5. move/rename file `qc/multiqc_alignment.html` since it will be overwritten
+6. remove file `refs/region.intervals`!
+7. repeat 2-6 with other target file
+8. add all samples again to sample sheet
+9. run analysis till the end
+    - snakemake target `"filter/variantcalls.csv"`
+
 # Glossary
 
 AML
@@ -160,7 +178,7 @@ CDR
 : commonly deleted region
 
 VAF
-: variant allel frequency
+: variant allele frequency
 
 UMI Adapters
 : PCR can introduce errors, which can be indistinguishable from *real* mutations. Therefor, every strand of sequenced DNA is marked with a unique molecular identifier (UMI). After PCR amplification, the reads are grouped by their UMIs, and only the consensus sequences are kept.
@@ -168,11 +186,9 @@ UMI Adapters
 ![Schematic of UMI adapters. Question: is the "orange" example correct?](images/umis.png)
 
 Clonal hematopoiesis (CH)
-
 : somatic mutation in leukemia-associated genes in the blood of individuals without hematologic disease.
 
 Demultiplexing
-
 : The raw sequencing data is put into (yet) unmapped SAM/BAM files per sample according to the barcodes.
 
 # Troubleshooting
@@ -188,5 +204,5 @@ Demultiplexing
     - 5' indexes not reverse complement
 
 - `XX.unmapped.bam` files remain empty:
+    - indexes in `library_param.csv` and `barcode_params` don't match
     - check `picard` log for `picard.PicardException: Read records with barcode CGCAATCTNNNNNNNNNACAGGCAT, but this barcode was not expected. (Is it referenced in the parameters file?)`
-        - indexes in `library_param.csv` and `barcode_params` don't match

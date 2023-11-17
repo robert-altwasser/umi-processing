@@ -2,3 +2,4 @@
 refs/
 filtering/
 .snakemake/
+umi_all
