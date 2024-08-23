@@ -3,15 +3,15 @@
 args = commandArgs(trailingOnly=TRUE)
 
 input <- read.table(args[1], 
-                    header = TRUE, sep = "\t", stringsAsFactors = FALSE, quote = "")
+                    header = TRUE, sep = "\t", stringsAsFactors = FALSE, quote = "", fileEncoding="UTF-8")
 amlcand <- scan(file = args[3], 
                 what = character())
 amldriver <- scan(file = args[4], 
                   what = character())
 chipmut <- read.table(args[5], 
-                      header = TRUE, sep = "\t", stringsAsFactors = FALSE)
+                      header = TRUE, sep = "\t", stringsAsFactors = FALSE, fileEncoding="UTF-8")
 eb <- read.table(file = args[6], header = FALSE,
-                 stringsAsFactors = FALSE)
+                 stringsAsFactors = FALSE, fileEncoding="UTF-8")
 eb <- as.vector(eb[,1])
 eb[which(eb == ".")] <- NA
 

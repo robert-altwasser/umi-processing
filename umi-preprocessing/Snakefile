@@ -19,7 +19,7 @@ from snakemake.utils import min_version
 
 min_version("5.7.1")
 
-configfile: "../config/config1686.yaml"
+configfile: "/data/cephfs-1/work/projects/damm-belove/pipelines/umi-processing/config/A4314/config_A4314_reseq.yaml"
 validate(config, schema="schemas/config.schema.yaml")
 
 SAMPLES = os.listdir(config["general"]["work_dir"] + "/demux/unmapped/")

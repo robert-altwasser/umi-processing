@@ -6,7 +6,7 @@ dependencies:
   - snakemake
   - mamba
   - r-base=3.6.3
-  - r-stringr=1.5.1
+  - r-stringr
   - mawk
   - drmaa
   - pysam

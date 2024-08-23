@@ -1,22 +1,25 @@
+#  --- Library import --- #
 import os
 import re
 import yaml
 import argparse
 import math
 import importlib.util
-# import pysam
+import gzip
+import glob
+from snakemake.io import expand
 
-# ############ SETUP ##############################
-
-configfile: "../config/config1413.yaml"
-
+#  --- Set-up --- #
+configfile: "/data/cephfs-1/work/projects/damm-belove/pipelines/umi-processing/config/A4314/config_A4314_reseq.yaml"
 workdir: config["general"]["work_dir"] + "variantcalling/"
+OUTDIR = config["general"]["work_dir"] + "variantcalling"
+DEMUXDIR = config["general"]["work_dir"] + "demux"
 
+# Define sample names
 samples = os.listdir(config["general"]["work_dir"] + "demux/mapped")
 samples = list(filter(lambda x:'.realigned.bam' in x, samples))
 samples = list(filter(lambda x:'.bai' not in x, samples)) ### ROBERT: otherwise index files stay in Samples
 samples = [s.replace('.realigned.bam', '') for s in samples]
-
 list(filter(lambda x:'.bai' in x, samples))
 
 file_ending = ".realigned.bam"
@@ -24,33 +27,51 @@ input_bam = {}
 for sample in samples:
     input_bam[sample] = ''.join([config["general"]["work_dir"], "demux/mapped/", sample, file_ending])
 
+# --- Auxiliar function --- #
+"""
+Returns a list of VCF files matching the given pattern that have non-commented content.
+:param pattern: A glob pattern to match files
+:return: A list of non-empty VCF files
+"""
+def get_non_empty_vcf_files(OUTDIR, samples, suffix):
+    # Generate the list of file patterns using Snakemake expand
+    patterns = expand("{OUTDIR}/vardict/{sample}." + suffix, OUTDIR=OUTDIR, sample=samples)
+    non_empty_files = []
+    for pattern in patterns:
+        for file in glob.glob(pattern):
+            open_func = gzip.open if suffix.endswith(".gz") else open
+            with open_func(file, 'rt') as f:
+                for line in f:
+                    if not line.startswith('#'):
+                        # Extract the sample name from the file path
+                        sample_name = os.path.basename(file).replace(f".{suffix}", "")
+                        non_empty_files.append(sample_name)
+                        break   # No need to check further lines, we found non-comment content
+    return non_empty_files
 
-# ############ INCLUDES ##############################
-# include helper functions
-include: "rules/io.snk"
-include: "rules/utils.snk"
-include: "rules/resources.smk"
-
-include: "rules/variantcalling.snk"
-include: "rules/annotate.snk"
-include: "rules/filterbam.snk"
-
-
-# specified wildcards have to match the regex
+# -- Specified wildcards have to match the regex.  --- #
+# eg sample cannot contain _ or / to prevent ambiguous wildcards
 wildcard_constraints:
-    # eg sample cannot contain _ or / to prevent ambiguous wildcards
     sample = "[^/.]+",
     read = "[^_/.]+",
     read_or_index = "[^_/.]+",
     filter = "filter[0-9]+"
-    # folder = "^((?!filter).)*$"
 
+# ---  Include helper functions  --- #
+include: "rules/io.snk"
+include: "rules/utils.snk"
+include: "rules/resources.smk"
+include: "rules/filterbam.snk"
+include: "rules/annotate.snk"
+include: "rules/variantcalling.snk"
 
-# ############## MASTER RULE ##############################################
+print(non_empty_vcf)
 
+# ---  Rule all --- #
 rule all:
-    input:
-        expand("vardict/{sample}.vcf", sample = samples)
-        #"filter/variantcalls.csv"
-
-###########################################################################
+     input:
+         expand("{OUTDIR}/filter/variantcalls.csv",  OUTDIR = OUTDIR)
+         #expand(["{OUTDIR}/filterbam/{sample}.bam",
+         #        "{OUTDIR}/table/{sample}.csv",
+         #        "{OUTDIR}/vardict/{sample}.vcf",
+         #        "{OUTDIR}/filter/variantcalls.csv"], sample = get_non_empty_vcf_files(OUTDIR=OUTDIR,samples=samples,suffix="norm.vcf.gz"), OUTDIR = OUTDIR)

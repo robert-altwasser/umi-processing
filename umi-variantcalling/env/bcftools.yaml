@@ -1,0 +1,8 @@
+channels:
+    - conda-forge
+    - bioconda
+dependencies:
+    - libdeflate=1.18
+    - htslib=1.19
+    - bcftools=1.19
+    - tabix

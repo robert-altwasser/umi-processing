@@ -28,7 +28,7 @@ rule samtools_faidx:
         mem_mb="2G",
         time="01:00:00"
     wrapper:
-        "v1.0.0/bio/samtools/faidx"
+        "v1.26.0/bio/samtools/faidx"
 
 rule query_bam_sort:
     input:
@@ -58,10 +58,8 @@ rule coordinate_bam_sort:
     log:
         "logs/picard/coordinate_bam_sort/{file}.log"
     shell:
-        r"""
-        picard SortSam I={input} \
-        SORT_ORDER=coordinate \
-        o={output} &> {log}
+        """
+        picard SortSam -I {input} --SORT_ORDER coordinate -O {output} &> {log}
         """
 
 rule bwa_index:
@@ -78,7 +76,7 @@ rule bwa_index:
         mem_mb="10G",
         time="02:00:00"
     wrapper:
-        "v1.0.0/bio/bwa/index"
+        "v1.25.0/bio/bwa/index"
 
 rule create_dict:
     input:
@@ -90,32 +88,38 @@ rule create_dict:
     params:
         extra=""  # optional: extra arguments for picard.
     wrapper:
-        "v1.0.0/bio/picard/createsequencedictionary"
+        "v3.0.2/bio/picard/createsequencedictionary"
 
 rule samtools_index:
     input:
-        "mapped/{file}.bam"
+        bam="mapped/{file}.bam"
     output:
-        "mapped/{file}.bam.bai"
+        bai="mapped/{file}.bam.bai"
+    log:
+        err="logs/samtools/{file}.index.log"
     resources:
-        mem_mb="2G",
+        mem_mb="10G",
         time="01:00:00"
-    wrapper:
-        "v1.0.0/bio/samtools/index"
+    shell:
+        """
+        samtools index {input.bam} {output.bai} &> {log.err}
+        """
 
 rule bed_to_interval_list:
     input:
         bed=config["reference"]["region_file"],
         dict="refs/genome.dict"
     output:
-        "refs/region.intervals"
+        intervals="refs/region.intervals"
     log:
-        "logs/picard/bedtointervallist.log"
+        err="logs/picard/bedtointervallist.log"
     params:
         # optional parameters
         extra="--SORT true", # sort output interval list before writing
     resources:
-        mem_mb=1024,
+        mem_mb="10G",
         time="01:00:00"
-    wrapper:
-        "v1.0.0/bio/picard/bedtointervallist"
+    shell:
+        """
+        picard BedToIntervalList {params.extra} --INPUT {input.bed} --SEQUENCE_DICTIONARY {input.dict} --OUTPUT {output.intervals} &> {log.err}
+        """

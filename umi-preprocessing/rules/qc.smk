@@ -24,16 +24,16 @@ rule fastqc:
     output:
         html="qc/fastqc/{sample}.{read}.html",
         zip="qc/fastqc/{sample}.{read}_fastqc.zip" # the suffix _fastqc.zip is necessary for multiqc to find the file. If not using multiqc, you are free to choose an arbitrary filename
-    params: ""
+    params: 
+        extra = ""
     log:
         "logs/fastqc/{sample}.{read}.log"
-    threads: 1
+    threads: 4
     resources:
-        mem_mb="10G",
+        mem_mb="32G",
         time="03:00:00"
     wrapper:
-        "v1.0.0/bio/fastqc"
-
+        "v1.23.1/bio/fastqc"
 
 rule samtools_stats:
     input:
@@ -44,12 +44,12 @@ rule samtools_stats:
     output:
         "qc/samtools-stats/{sample}.{type}.txt"
     resources:
-        mem_mb="10G",
+        mem_mb="30G",
         time="01:00:00"
     log:
         "logs/samtools-stats/{sample}.{type}.log"
     wrapper:
-        "v1.0.0/bio/samtools/stats"
+        "v3.0.2/bio/samtools/stats"
 
 
 rule picard_collect_hs_metrics:
@@ -61,7 +61,7 @@ rule picard_collect_hs_metrics:
         bait_intervals="refs/region.intervals",
         target_intervals="refs/region.intervals"
     output:
-        "qc/hs_metrics/{sample}.{type}.txt"
+        txt="qc/hs_metrics/{sample}.{type}.txt"
     params:
         # Optional extra arguments. Here we reduce sample size
         # to reduce the runtime in our unit test.
@@ -69,26 +69,28 @@ rule picard_collect_hs_metrics:
     log:
         "logs/picard/collect_hs_metrics/{sample}.{type}.log"
     resources:
-        time="00:55:00"
-    wrapper:
-        "v1.0.0/bio/picard/collecthsmetrics"
-
+        mem_mb="20G",
+        time="01:00:00"
+    shell:
+        """
+        picard CollectHsMetrics {params.extra} --INPUT {input.bam} --OUTPUT {output.txt} --REFERENCE_SEQUENCE {input.reference} --BAIT_INTERVALS {input.bait_intervals} --TARGET_INTERVALS {input.target_intervals} &> {log}
+        """
 
 rule multiqc_alignments:
     input:
-        expand("qc/{ctype}/{sample}.{ftype}.txt", sample=SAMPLES, ctype=["samtools-stats","hs_metrics"], ftype=["woconsensus", "realigned"])
+        expand("qc/{ctype}/{sample}.{ftype}.txt", sample=SAMPLES, ctype=["hs_metrics"], ftype=["realigned"]) #ctype=["samtools-stats","hs_metrics"], ftype=["woconsensus", "realigned"])
     output:
         "qc/multiqc_alignments.html"
     log:
         "logs/multiqc/alignment.log"
     params:
-        "--interactive  --cl_config 'max_table_rows: 10000'"
+        "--interactive --cl-config 'max_table_rows: 10000'"
     resources:
         mem_mb=get_mem_20_10,
-        time="01:00:00"
+        time="04:00:00"
     shell:
         """
-            multiqc {params} --force -o qc -n multiqc_alignments {input}
+        multiqc {params} --force -o qc -n multiqc_alignments {input}
         """
 
 rule multiqc_reads:
@@ -99,7 +101,7 @@ rule multiqc_reads:
     log:
         "logs/multiqc/reads.log"
     params:
-        "--interactive --force --cl_config 'max_table_rows: 10000'"
+        "--interactive --force --cl-config 'max_table_rows: 10000'"
     resources:
         mem_mb="20G",
         time="01:00:00"

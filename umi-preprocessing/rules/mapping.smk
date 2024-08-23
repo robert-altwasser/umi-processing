@@ -15,7 +15,7 @@ rule map_reads1:
     threads:
         8
     resources:
-        mem_mb="70G",
+        mem_mb="100G",
         time="20:00:00"
     shell:
         """
@@ -28,36 +28,42 @@ rule map_reads1:
 
 rule GroupReads:
     input:
-        "mapped/{sample}.woconsensus.bam"
+        bam="mapped/{sample}.woconsensus.bam"
     output:
         bam="unmapped/{sample}.groupedumi.bam",
         hist="metrices/fgbio/{sample}.groupedumi.histo.tsv",
     params:
         extra=config["fgbio"]["groupreads"]
+    threads: 2
     resources:
+        mem="30G",
         mem_mb="30G",
         time="02:00:00"
     log:
-        "logs/fgbio/group_reads/{sample}.log"
-    wrapper:
-        "v1.0.0/bio/fgbio/groupreadsbyumi"
+        out="logs/fgbio/group_reads/{sample}.log"
+    shell:
+        """
+        fgbio GroupReadsByUmi -i {input.bam} -o {output.bam} -f {output.hist} {params.extra} &> {log.out}
+        """
 
 rule ConsensusReads:
     input:
-        "unmapped/{sample}.groupedumi.bam"
+        bam="unmapped/{sample}.groupedumi.bam"
     output:
-        temporary("unmapped/{sample}.consensusreads.bam")
+        bam=temporary("unmapped/{sample}.consensusreads.bam")
     params:
         extra=config["fgbio"]["callconsensus"]
     resources:
-        mem="10G",
-        mem_mb="10G",
+        mem="60G",
+        mem_mb="60G",
         time="02:00:00"
     log:
-        "logs/fgbio/consensus_reads/{sample}.log"
-    wrapper:
-        "v1.0.0/bio/fgbio/callmolecularconsensusreads"
-####
+        out="logs/fgbio/consensus_reads/{sample}.log"
+    shell:
+        """
+        fgbio CallMolecularConsensusReads -i {input.bam} -o {output.bam} {params.extra} &> {log.out}
+        """
+
 ### Common errors:
 # "Error in writing fastq file /dev/stdout"
 # means the pipeline collapsed. Probably an error in MergeBamAlignment
@@ -141,7 +147,6 @@ rule realignertargetcreator:
         r"""
         gatk3 {params.java_opts} -T RealignerTargetCreator {params.extra} -nt {threads} -I {input.bam} -R {input.ref} -known {input.known} -L {input.bed} -o {output} &> {log}
         """
-
 
 rule indelrealigner:
     input:

@@ -1,6 +1,8 @@
 #!/usr/bin/env Rscript
 print("start MergCalls")
 args = commandArgs(trailingOnly=TRUE)
+print(args[1])
+print(args[2])
 
 files <- list.files(args[1], pattern = ".edit.csv")
 

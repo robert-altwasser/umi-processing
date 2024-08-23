@@ -1,5 +1,5 @@
 def get_mem_20_10(wildcards, attempt):
-    return str(10 + attempt * 10) + "G"
+    return str(10 + attempt * 20) + "G"
 
 def get_mem_3_1(wildcards, attempt):
     return str(2 + attempt) + "G"

@@ -6,21 +6,22 @@
 #SBATCH --cpus-per-task=1
 #SBATCH --time=24:00:00
 #SBATCH --mem-per-cpu=2000M
-#SBATCH --output=/fast/users/altwassr_c/scratch/slurm_logs/%x.%j.out
-#SBATCH --error=/fast/users/altwassr_c/scratch/slurm_logs/%x.%j.err
+#SBATCH --output=/data/gpfs-1/users/cofu10_c/scratch/A4314_reseq/slurm_logs/%x.%j.out
+#SBATCH --error=/data/gpfs-1/users/cofu10_c/scratch/A4314_reseq/slurm_logs/%x.%j.err
 
 snakemake \
     --nt \
-    --jobs 60 \
-    --restart-times 2 \
-    --cluster-config ~/work/umi-data-processing/config/cluster_config.yaml \
+    --jobs 250 \
+    --restart-times 3 \
+    --cluster-config /data/gpfs-1/users/cofu10_c/work/pipelines/umi-processing/config/cluster_config.yaml \
     --profile=cubi-v1 \
     --use-conda \
+    --conda-frontend mamba \
     --printshellcmds \
     --rerun-incomplete \
     --scheduler greedy \
-    --conda-prefix=/fast/users/altwassr_c/work/conda-envs/ 
-#    --reason \
-
-    # --verbose \
-    # --keep-going \
+    --keep-going \
+    --conda-prefix=/data/gpfs-1/users/cofu10_c/scratch/A3414_reseq/envs \
+    --reason \
+    --verbose \
+    --keep-going \

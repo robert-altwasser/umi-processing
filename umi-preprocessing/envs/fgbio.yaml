@@ -1,6 +1,5 @@
 channels:
+  - conda-forge
   - bioconda
 dependencies:
-  - ebfilter
-  - vcfpy
-  - bcftools
+  - fgbio=2.0.1

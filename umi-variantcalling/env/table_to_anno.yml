@@ -1,0 +1,8 @@
+name: table_to_anno 
+channels:
+  - conda-forge
+  - bioconda
+dependencies:
+  - ncurses
+  - r-base=3.6.3
+  - r-stringr

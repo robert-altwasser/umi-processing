@@ -3,3 +3,8 @@ refs/
 filtering/
 .snakemake/
 umi_all
+config/P*
+config/A*
+config/old
+disc/
+orig/

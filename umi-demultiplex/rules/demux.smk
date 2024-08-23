@@ -8,8 +8,8 @@ rule basecalls_to_fastq:
          rstructure=config["illumina"]["readstructure"],
      threads: 30
      resources:
-         mem="70G",
-         mem_mb="70G",
+         mem="400G",
+         mem_mb="400G",
          time="24:00:00"
      shell:
          """
@@ -25,8 +25,8 @@ rule basecalls_to_fastq:
                     --ignore-missing-bcl \
                     --ignore-missing-filter \
                     --mask-short-adapter-reads 0 \
-                    --create-fastq-for-index-reads \
-                    --use-bases-mask {params.rstructure}
+                    --use-bases-mask {params.rstructure} \
+                    --create-fastq-for-index-reads
          """
 
 def get_fq(wildcards):

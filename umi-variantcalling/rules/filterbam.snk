@@ -1,37 +1,10 @@
-# rule mutation_bed:
-#     input:
-#         "table/{sample}.edit.csv"
-#     output:
-#         "filterbam/{sample}.bed"
-#     params:
-#         config['filter_bam']['padding']
-#     resources:
-#         time="00:30:00"
-#     run:
-#         dir_path = config["general"]["work_dir"] + "variantcalling"
-#         conf = config['filter_bam']
-#         print(f"{dir_path}/{input}")
-#         anno_df = pd.read_csv(f"{dir_path}/{input}", sep='\t').sort_values(['Chr', 'Start']).iloc[:,:5]
-#         if not len(anno_df.index):
-#             anno_df.to_csv("filterbam/{sample}.bed", index=False, sep='\t', header=False)
-#         else:
-#             # get the bedfie with padded and collapsed regions
-#             bed_df = anno_df.groupby('Chr').apply(reduce_regions, conf['padding'])
-#             # remove Chr index
-#             bed_df = bed_df.reset_index().drop(columns='level_1')
-#             # write bed_df to file
-#             print('MUTFILE', anno_df, '\n', 'BED', bed_df)
-#             bed_df.to_csv(f"{dir_path}/{output}", index=False, sep='\t', header=False)
-#             #print('MUTFILE', anno_df, '\n', 'BED', bed_df)
 rule mutation_bed:
     input:
-        "table/{sample}.edit.csv"
+        "{}/table/{{sample}}.edit.csv".format(OUTDIR)
     output:
-        "filterbam/{sample}.bed"
+        "{}/filterbam/{{sample}}.bed".format(OUTDIR)
     params:
         config['filter_bam']['padding']
-    resources:
-        time="00:30:00"
     run:
         dir_path = config["general"]["work_dir"] + "variantcalling"
         conf = config['filter_bam']
@@ -39,6 +12,11 @@ rule mutation_bed:
         anno_df = pd.read_csv(f"{input}", sep='\t').sort_values(['Chr', 'Start']).iloc[:,:5]
         if not len(anno_df.index):
             anno_df.to_csv("filterbam/{sample}.bed", index=False, sep='\t', header=False)
+        if len(anno_df.index) == 1:
+            bed_df = anno_df.groupby('Chr').apply(reduce_regions, conf['padding'])
+            # write bed_df to file
+            print('MUTFILE', anno_df, '\n', 'BED', bed_df)
+            bed_df.to_csv(f"{output}", index=False, sep='\t', header=False)
         else:
             # get the bedfie with padded and collapsed regions
             bed_df = anno_df.groupby('Chr').apply(reduce_regions, conf['padding'])
@@ -51,29 +29,40 @@ rule mutation_bed:
 
 rule samtools_view:
     input:
-        lambda wildcards: input_bam[wildcards.sample], "filterbam/{sample}.bed"
+        sample=lambda wildcards: input_bam[wildcards.sample],
+        bed="{}/filterbam/{{sample}}.bed".format(OUTDIR)
     output:
-        "filterbam/{sample}.bam"
+        "{}/filterbam/{{sample}}.bam".format(OUTDIR),
     params:
-        extra="-bhL filterbam/{sample}.bed" # optional params string
+        extra="-bhL "
+    log:
+        "{}/logs/samtools_view/{{sample}}.log".format(OUTDIR)
     resources:
-        time="00:30:00"
-    wrapper:
-        "v1.0.0/bio/samtools/view"
+        time="00:30:00",
+        mem="60G",
+        mem_mb="60G"
+    shell:
+        """
+        samtools view {params.extra} {input.bed} {input.sample} -o {output} &> {log}
+        """
 
 rule samtools_index_vc:
     input:
-        "filterbam/{sample}.bam"
+        "{}/filterbam/{{sample}}.bam".format(OUTDIR)
     output:
-        "filterbam/{sample}.bai"
+        "{}/filterbam/{{sample}}.bai".format(OUTDIR)
     threads:
         4
+    log:
+        "{}/logs/samtools_index_vc/{{sample}}.log".format(OUTDIR)
     params:
         "" # optional params string
     resources:
         time="00:30:00"
-    wrapper:
-        "v1.0.0/bio/samtools/index"
+    shell:
+        """
+        samtools index -b {input} {output} -@ {threads} &> {log}
+        """
     
 
 rule mpilup:
@@ -82,26 +71,23 @@ rule mpilup:
         bam=lambda wildcards: input_bam[wildcards.sample],
         reference_genome=config["reference"]["genome"]
     output:
-        temp("mpileup/{sample}.raw.pileup.gz")
+        temp("{}/mpileup/{{sample}}.raw.pileup.gz".format(OUTDIR))
     log:
         "logs/samtools/mpileup/{sample}.log"
     params:
         extra="".join([" -q ", str(config['mpileup']['MAPQ']), " -Q ", str(config['mpileup']['Q'])]),  # optional
-    resources:
-        time="00:30:00"
     wrapper:
-        "v1.0.0/bio/samtools/mpileup"
-
+        "v3.3.5/bio/samtools/mpileup"
+#resources:
+#time="00:30:00"
 
 rule filter_pileup:
     input:
-        "mpileup/{sample}.raw.pileup.gz"
+        "{}/mpileup/{{sample}}.raw.pileup.gz".format(OUTDIR)
     output:
-        "pileup/{sample}.pileup"
+        "{}/pileup/{{sample}}.pileup".format(OUTDIR)
     threads:
         2
-    resources:
-        time="00:30:00"
     params:
         ''.join([config["general"]['snakedir'],'/scripts/shell/cleanpileup.mawk'])
     shell:
@@ -109,14 +95,15 @@ rule filter_pileup:
         mkdir -p pileup
         zcat {input} | {params} > {output}
         """
-
+#resources:
+#time="00:30:00"
 
 rule IGVnav:
     input:
-        filter = "table/{sample}.filter1.csv",
-        bam = "filterbam/{sample}.bam"
+        filter = "{}/table/{{sample}}.filter1.csv".format(OUTDIR),
+        bam = "{}/filterbam/{{sample}}.bam".format(OUTDIR)
     output:
-        IGVNav = "filterbam/{sample}.filter1.txt"
+        IGVNav = "{}/filterbam/{{sample}}.filter1.txt".format(OUTDIR)
     threads:
         1
     resources:

@@ -21,12 +21,10 @@ filter_pileup = i.pileup
 out_file = snakemake.output.HDR
 
 
-show_output(
-    f'Starting HDR analysis of {filter_file}. [MIN_SIM={MINSIM}, PAD={PAD}]')
+show_output(f'Starting HDR analysis of {filter_file}. [MIN_SIM={MINSIM}, PAD={PAD}]')
 # GET THE mutation file for masterHDR
 show_output(f'Importing {filter_file} for HDR detection', time=False)
-filter_df = pd.read_csv(filter_file, sep='\t').loc[:, [
-    'Chr', 'Start', 'End', 'Ref', 'Alt', 'Gene']]
+filter_df = pd.read_csv(filter_file, sep='\t').loc[:,['Chr', 'Start', 'End', 'Ref', 'Alt', 'Gene']]
 
 HDR_df = masterHDR(
     pileup_file=filter_pileup,
@@ -40,6 +38,5 @@ HDR_df = masterHDR(
 
 HDR_len = len(HDR_df.query('HDRcount > 0').index)
 
-show_output(
-    f"Found {HDR_len} possible HDR mutations. Writing to file {out_file}")
+show_output(f"Found {HDR_len} possible HDR mutations. Writing to file {out_file}")
 HDR_df.to_csv(out_file, sep='\t', index=False)

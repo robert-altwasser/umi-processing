@@ -1,131 +1,116 @@
-# rule vardict_single_mode:
-#     input:
-#         reference=config['refgenome'],
-#         regions=config["bedfile"],
-#         bam=lambda wildcards: input_bam[wildcards.sample],
-#     output:
-#         vcf="vardict/{sample}.vcf"
-#     params:
-#         extra="",
-#         bed_columns="-c 1 -S 2 -E 3 -g 4",  # Optional, default is -c 1 -S 2 -E 3 -g 4
-#         af_th="0.001",  # Optional, default is 0.01
-#     threads: 1
-#     log:
-#         "logs/vardict/vardict_{sample}.log",
-#     wrapper:
-#         "0.78.0/bio/vardict"
-
 rule vardict:
     input:
         ref=config["reference"]['genome'],
-        # you can have a list of samples here
-        samples=lambda wildcards: input_bam[wildcards.sample],
-        # optional BED file specifying chromosomal regions on which freebayes
-        # should run, e.g. all regions that show coverage
-        regions=config["reference"]["region_file"],
+
+        # -- List of samples -- #
+        sample ="{}/mapped/{{sample}}.realigned.bam".format(DEMUXDIR),
+
+        # -- Optional BED file --- # 
+        # Specifies chromosomal regions on which freebayes should run, e.g. all regions that show coverage
+        regions=config["reference"]["region_file"]
+
     output:
-        "vardict/{sample}.vcf"
+        "{}/vardict/{{sample}}.vcf".format(OUTDIR)
     params:
         extra="-c 1 -S 2 -E 3 -g 4",
         vaf=config["vardict"]["vaf"]
+    threads: 4
     resources:
         time="48:00:00",
         threads=3
-    conda:
-        "/fast/users/altwassr_c/environments/vardict.yaml"
+    #conda:
+    #    "../env/vardict.yaml"
     shell:
         r"""
         mkdir -p vardict
-        vardict -k 0 -U -G {input.ref} -f {params.vaf} -N {wildcards.sample} -b {input.samples} {params.extra} {input.regions} | ${{CONDA_PREFIX}}/share/vardict-20*/teststrandbias.R | ${{CONDA_PREFIX}}/share/vardict-20*/var2vcf_valid.pl -N {wildcards.sample} -E -f {params.vaf} > {output}
+        vardict -k 0 -U -G {input.ref} -f {params.vaf} -N {sample} -b {input.sample} {params.extra} {input.regions} | ${{CONDA_PREFIX}}/share/vardict-20*/teststrandbias.R | ${{CONDA_PREFIX}}/share/vardict-20*/var2vcf_valid.pl -N {sample} -E -f {params.vaf} > {output}
         """
 
 rule bcf_to_vcf:
     input:
-        "vardict/{sample}.vcf"
+        "{}/vardict/{{sample}}.vcf".format(OUTDIR)
     output:
-        "vardict/{sample}.vcf.gz"
+        "{}/vardict/{{sample}}.vcf.gz".format(OUTDIR)
     params:
         extra=""  # optional parameters for bcftools view (except -o)
+    threads: 4
     resources:
         time="00:30:00"
-    wrapper:
-        "v1.0.0/bio/bcftools/view"
+    conda:
+        "../env/bcftools.yaml"
+    shell:
+        """
+        bcftools view {input} -Ov -o {output}
+        htsfile {output}
+        """
 
 rule bcftools_index:
     input:
-        "vardict/{sample}.vcf.gz"
+        "{}/vardict/{{sample}}.vcf.gz".format(OUTDIR)
     output:
-        "vardict/{sample}.vcf.gz.csi"
+        "{}/vardict/{{sample}}.vcf.gz.csi".format(OUTDIR)
     params:
         extra=""  # optional parameters for bcftools index
     resources:
         time="00:30:00"
-    wrapper:
-        "v1.0.0/bio/bcftools/index"
+    conda:
+        "../env/bcftools.yaml"
+    shell:
+        """
+        bcftools index {params.extra} {input} -o {output}
+        """
 
 rule norm_vcf:
     input:
-        vcf = "vardict/{sample}.vcf.gz",
-        index = "vardict/{sample}.vcf.gz.csi"
+        vcf="{}/vardict/{{sample}}.vcf.gz".format(OUTDIR),
+        index="{}/vardict/{{sample}}.vcf.gz.csi".format(OUTDIR)
     output:
-        "vardict/{sample}.norm.vcf.gz"
+        "{}/vardict/{{sample}}.norm.vcf.gz".format(OUTDIR)
+    log:
+        "{}/logs/norm_vcf/{{sample}}.log".format(OUTDIR)
     params:
         extra=''.join(['-f ', config["reference"]['genome']])  # optional parameters for bcftools norm (except -o)
     resources:
         time="00:30:00"
-    wrapper:
-        "v1.0.0/bio/bcftools/norm"
-
+    conda:
+        "../env/bcftools.yaml"
+    shell:
+        """
+        bcftools norm {params.extra} {input.vcf} -o {output} &> {log}
+        """
 
 rule vcf_to_table:
     input:
-        "vardict/{sample}.norm.vcf.gz"
+        "{}/vardict/{{sample}}.norm.vcf.gz".format(OUTDIR)
     output:
-        "vardict/{sample}.csv"
+        "{}/vardict/{{sample}}.csv".format(OUTDIR)
     params:
-        #wd = config["general"]['work_dir'] + "variantcalling/",
         sd = config["general"]['snakedir'],
-        rs = f"scripts/Vcf2Table.R",
-    resources:
-        time="00:30:00"
+        rs = f"scripts/Vcf2Table.R"
     conda:
-        "../env/vardict-pipeline.yml",
+        "../env/vcf_to_table.yml"
+    log:
+        "{}/logs/vcf_to_table/{{sample}}.log".format(OUTDIR)
+    resources:
+        time="01:30:00"
     shell:
         r"""
-        Rscript {params.sd}/{params.rs} {input} {output}
+        Rscript {params.sd}/{params.rs} {input} {output} &> {log}
         """
-        #Rscript {params.sd}/{params.rs} {params.wd}/{input} {params.wd}/{output}
 
 rule table_to_anno:
     input:
-        "vardict/{sample}.csv",
+        "{}/vardict/{{sample}}.csv".format(OUTDIR),
     output:
-        "table/{sample}.csv"
+        "{}/table/{{sample}}.csv".format(OUTDIR)
     threads:
         1
-    resources:
-        time="00:30:00"
     params:
         sd = config["general"]['snakedir'],
         rs = f"scripts/SplitTable.R",
+    conda:
+        "../env/table_to_anno.yml"
     shell:
         r"""
         Rscript {params.sd}/{params.rs} {input} {output}
         """
-# rule table_to_anno:
-#     input:
-#         "vardict/{sample}.csv",
-#     output:
-#         "table/{sample}.csv"
-#     threads:
-#         1
-#     resources:
-#         time="00:30:00"
-#     params:
-#         wd = config["general"]['work_dir'] + "variantcalling/",
-#         sd = config["general"]['snakedir'],
-#         rs = f"scripts/SplitTable.R",
-#     shell:
-#         r"""
-#         Rscript {params.sd}/{params.rs} {params.wd}/{input} {params.wd}/{output}
-#         """
