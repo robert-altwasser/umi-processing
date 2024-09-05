@@ -10,10 +10,10 @@ general:
   control: FALSE
 
 reference:  
-  genome: "/data/gpfs-1/users/cofu10_c/work/references/genome/GRCh38.u2af1_fix.v1.2020_04_01.fa"
-  known_indels: "/data/gpfs-1/users/cofu10_c/work/references/annotations/known_indels.vcf.gz"
-  bedfile: "/data/gpfs-1/users/cofu10_c/work/references/regions/Belove_bed/merged_Charite_BeLOVE-SNP_1X_TE-99851754_hg38_211008074127.bed"
-  region_file: "/data/gpfs-1/users/cofu10_c/work/references/regions/Belove_bed/merged_Charite_BeLOVE-SNP_1X_TE-99851754_hg38_211008074127.bed"
+  genome: "/data/cephfs-1/home/users/cofu10_c/work/references/genome/GRCh38.u2af1_fix.v1.2020_04_01.fa"
+  known_indels: "/data/cephfs-1/home/users/cofu10_c/work/references/annotations/known_indels.vcf.gz"
+  bedfile: "/data/cephfs-1/home/users/cofu10_c/work/references/regions/Belove_bed/merged_Charite_BeLOVE-SNP_1X_TE-99851754_hg38_211008074127.bed"
+  region_file: "/data/cephfs-1/home/users/cofu10_c/work/references/regions/Belove_bed/merged_Charite_BeLOVE-SNP_1X_TE-99851754_hg38_211008074127.bed"
 
 illumina:
   basecall_dir: "/data/cephfs-1/work/groups/ludwig/A4392/240621_LH00253_0121_B22KLJKLT3/Data/Intensities/BaseCalls/"
