@@ -1,0 +1,85 @@
+general:
+  work_dir: "/data/cephfs-1/work/projects/damm-belove/scratch/A4392/"
+  work_dir_demux: "/data/cephfs-1/work/projects/damm-belove/scratch/A4392/demux/"
+  work_dir_variantcalling: "/data/cephfs-1/work/projects/damm-belove/scratch/A4392/variantcalling/"
+  snakedir: "/data/cephfs-1/work/projects/damm-belove/pipelines/umi-processing/umi-variantcalling/"
+  SampleSheet: "/data/cephfs-1/work/projects/damm-belove/pipelines/umi-processing/config/A4392/samplesheet.csv"
+  tmp_dir: "/data/cephfs-1/work/projects/damm-belove/scratch/A4392/unmapped_bam/tmp"
+  refgenome: " /data/cephfs-1/home/users/cofu10_c/work//references/genome/GRCh38.u2af1_fix.v1.2020_04_01.fa"
+  demux: TRUE
+  control: FALSE
+
+reference:  
+  genome: "/data/gpfs-1/users/cofu10_c/work/references/genome/GRCh38.u2af1_fix.v1.2020_04_01.fa"
+  known_indels: "/data/gpfs-1/users/cofu10_c/work/references/annotations/known_indels.vcf.gz"
+  bedfile: "/data/gpfs-1/users/cofu10_c/work/references/regions/Belove_bed/merged_Charite_BeLOVE-SNP_1X_TE-99851754_hg38_211008074127.bed"
+  region_file: "/data/gpfs-1/users/cofu10_c/work/references/regions/Belove_bed/merged_Charite_BeLOVE-SNP_1X_TE-99851754_hg38_211008074127.bed"
+
+illumina:
+  basecall_dir: "/data/cephfs-1/work/groups/ludwig/A4392/240621_LH00253_0121_B22KLJKLT3/Data/Intensities/BaseCalls/"
+  readstructure: "y149,i8y9n*,i8n*,y148"  
+  runbarcode: "2023"
+
+picard:
+  memoryusage: "-Xmx64g -Xms64g"
+
+vardict:
+  vaf: 0.001
+
+fgbio:
+  groupreads: "-Xmx20g -s adjacency"
+  callconsensus: "-M 3"
+  fextra: ""
+  fminq: 5
+  readstructure: "8B 8B 149T 9M 148T"
+
+#### ABSOLUTE PATHS ############
+paths:
+  mystatic: /data/cephfs-1/home/users/cofu10_c/work/references
+  bihstatic: /fast/projects/cubit/current/static_data
+  scripts: scripts/ # folder relative to snakedir
+
+#### TOOLS SECTION ##############
+tools:
+  annovar: perl /data/cephfs-1/home/users/cofu10_c/work/references/annovar 
+mpileup:
+  Q: 20   # base quality
+  MAPQ: 10 # -q in pileup
+annovar:
+  build: hg38
+  path_to_humandb: /data/cephfs-1/home/users/cofu10_c/work/references/annovar/humandb
+  annofiles:
+    - refGene
+    - cytoBand
+    - clinvar_20200316
+    - dbnsfp35c
+    - gnomad30_genome
+    - avsnp150
+    - cosmic92_coding
+    - cosmic92_noncoding
+    - revel
+    - nci60
+edit:
+  extended_output: True
+  candidate_list: /data/cephfs-1/home/users/cofu10_c/work/references/info/AML_candidates.txt
+  driver_list: /data/cephfs-1/home/users/cofu10_c/work/references/info/AML_drivers.txt
+  CHIP_list: /data/cephfs-1/home/users/cofu10_c/work/references/info/CHIP_mut.txt
+  normals: /data/cephfs-1/home/users/cofu10_c/work/references/info/ListOfNormals.txt
+filter_bam:
+    threads: 4
+    stringency_for_IGVnav: moderate
+    padding: 200
+    folder: filterbam
+primer3:  # is applied after filter step 1
+  threads: 10
+  min_size: 120
+  max_size: 220
+  center_offSet: 5 # how much offSet primer pairs can
+  use_primer_list: ''
+  split: "/data/cephfs-1/home/users/cofu10_c/work/references/genome/split_hg38_u2af1_fix"
+HDR:
+  threads: 2
+  min_HDR_count: 1 # minimum lanes around mutation to make it a putative HDR
+  min_similarity: .85 # which similarities to consider as HDR
+  padding: 150  # range around mutation to be scanned
+  min_q: 20 # minimum base quality to be used for HDR-calculation
