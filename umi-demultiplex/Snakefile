@@ -22,7 +22,7 @@ from snakemake.utils import min_version
 
 min_version("5.7.1")
 
-configfile: "/data/cephfs-1/work/projects/damm-belove/pipelines/umi-processing/config/A4314/config_A4314_reseq.yaml"
+configfile: "/data/cephfs-1/work/projects/damm-belove/pipelines/umi-processing/config/A4392/config_A4392.yaml"
 # validate(config, schema="schemas/config.schema.yaml")
 
 workdir: config["general"]["work_dir"] + "demux/"

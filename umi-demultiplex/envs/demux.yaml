@@ -1,0 +1,8 @@
+channels:
+  - conda-forge
+  - bioconda
+  - bih-cubi
+dependencies:
+  - bcl2fastq-nextseq=1.3.0
+  - bcl2fastq2=2.20.0
+  - fgbio=2.0.1

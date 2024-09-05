@@ -7,9 +7,10 @@ rule basecalls_to_fastq:
      params:
          rstructure=config["illumina"]["readstructure"],
      threads: 30
+     conda:
+         "../envs/demux.yaml"
      resources:
          mem="400G",
-         mem_mb="400G",
          time="24:00:00"
      shell:
          """
@@ -45,9 +46,10 @@ rule fastq_to_bam:
          readstructure = config["fgbio"]["readstructure"]
     log:
         "logs/fgbio/{sample}.log"
+    conda:
+        "../envs/demux.yaml"
     resources:
         mem="70G",
-        mem_mb="70G",
         time="5:00:00"
     shell:
         """

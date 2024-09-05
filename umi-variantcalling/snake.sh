@@ -13,13 +13,13 @@
 
 snakemake \
     --jobs 10 \
-    --cluster-config /data/gpfs-1/users/cofu10_c/work/pipelines/umi-processing/config/cluster_config.yaml \
-    --profile=cubi-v1 \
+    --cluster-config /data/cephfs-1/home/users/cofu10_c/.config/snakemake/hpc-cluster/cluster_config.yaml \
+    --profile=cubi-dev \
     --restart-times 2 \
     --keep-going \
     --rerun-incomplete \
     --use-conda \
-    --conda-prefix=/data/gpfs-1/users/cofu10_c/scratch/A4314_reseq/envs     
+    --conda-prefix=/data/cephfs-1/work/projects/damm-belove/scratch/A4314_reseq/envs     
     # --verbose \
     #--touch \
     #--skip-script-cleanup \
