@@ -9,7 +9,7 @@ out <- ""
 for (i in 1:length(files)) 
 {
     sample <- strsplit(files[i], split = ".", fixed = TRUE)[[1]][1]  
-    #print(sample)
+    print(sample)
     file <- read.table(paste0(args[1], "/", files[i]),
                        header = TRUE,
                        quote = "\"", 

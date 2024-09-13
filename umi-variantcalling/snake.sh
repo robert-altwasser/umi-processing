@@ -16,13 +16,16 @@ snakemake \
     --jobs 60 \
     --cluster-config ~/work/umi-data-processing/config/cluster_config.yaml \
     --profile=cubi-v1 \
-    --restart-times 2 \
     --keep-going \
-    --dry-run \
     --rerun-incomplete \
+    --restart-times 2 \
     --use-conda --conda-prefix=/fast/users/altwassr_c/work/conda-envs/
+
+
+    # --printshellcmds \
+    # --until annovar \
+    # --dry-run \
 # --touch \
 # --skip-script-cleanup \
 # --reason \
 
-# --until annovar \

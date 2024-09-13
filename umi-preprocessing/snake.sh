@@ -16,11 +16,11 @@ snakemake \
     --cluster-config ~/work/umi-data-processing/config/cluster_config.yaml \
     --profile=cubi-v1 \
     --use-conda \
-    --printshellcmds \
     --rerun-incomplete \
     --scheduler greedy \
     --conda-prefix=/fast/users/altwassr_c/work/conda-envs/ 
 #    --reason \
 
+    # --printshellcmds \
     # --verbose \
     # --keep-going \

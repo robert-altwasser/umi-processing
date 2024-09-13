@@ -12,11 +12,7 @@ reference:
   region_file: "/fast/users/altwassr_c/work/refs/merged_probe_file_DKMS_v5-hrd_1X_1p5X_hg38.bed"
 
 illumina:
-<<<<<<< HEAD
-  basecall_dir: "/data/gpfs-1/users/altwassr_c/scratch/data/P3353/230908_A00643_0763_BH7WH7DSX5/Data/Intensities/BaseCalls/"
-=======
   basecall_dir: "/data/gpfs-1/users/altwassr_c/scratch/data/P1803/230120_A00643_0633_BHLNLNDSX5/Data/Intensities/BaseCalls/"
->>>>>>> 835276dd06dc4a874d0e4206cc4f5c1556ea1ec2
   readstructure: "y148,i8y9,i8n*,y148"
   runbarcode: "2023"
 
@@ -47,7 +43,8 @@ mpileup:
   MAPQ: 10 # -q in pileup
 annovar:
   build: hg38
-  path_to_humandb: /fast/groups/ag_damm/work/annovar/humandb/
+    --until mpileup \
+  path_to_humandb: //fast/groups/ag_damm/work/annovar/humandb/fast/groups/ag_damm/work/annovar/humandb/
   annofiles:
     - refGene
     - cytoBand
