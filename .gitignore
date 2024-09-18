@@ -3,3 +3,4 @@ refs/
 filtering/
 .snakemake/
 umi_all
+old_config
