@@ -105,6 +105,7 @@ picard  IlluminaBasecallsToFastq B=./{MY_RUN}/Data/Intensities/BaseCalls/ L=1 RS
 
 # Variant calling
 
+![umi_vari.svg](images/umi_variant.svg)
 ## vardict:
     - single (end) mode
     - “ultra sensitive variant caller for [..] variant calling from BAM files”
