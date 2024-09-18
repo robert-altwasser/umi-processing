@@ -69,7 +69,7 @@ rule picard_collect_hs_metrics:
     log:
         "logs/picard/collect_hs_metrics/{sample}.{type}.log"
     resources:
-        time="00:30:00"
+        time="00:55:00"
     wrapper:
         "v1.0.0/bio/picard/collecthsmetrics"
 

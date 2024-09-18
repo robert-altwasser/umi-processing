@@ -1,7 +1,7 @@
 general:
-  work_dir: "/data/gpfs-1/users/altwassr_c/scratch/P3353/"
+  work_dir: "/data/gpfs-1/users/altwassr_c/scratch/P3184/"
   snakedir: "/fast/users/altwassr_c/work/umi-data-processing/umi-variantcalling/"
-  SampleSheet: "/data/gpfs-1/users/altwassr_c/work/sample_sheets/SampleSheet_P3353.csv"
+  SampleSheet: "/data/gpfs-1/users/altwassr_c/work/sample_sheets/SampleSheet_P3184.csv"
   tmp_dir: "/data/gpfs-1/users/altwassr_c/scratch/tmp"
   demux: TRUE
   control: FALSE
@@ -12,8 +12,8 @@ reference:
   region_file: "/fast/users/altwassr_c/work/refs/merged_probe_file_DKMS_v5-hrd_1X_1p5X_hg38.bed"
 
 illumina:
-  basecall_dir: "/data/gpfs-1/users/altwassr_c/scratch/data/P1803/230120_A00643_0633_BHLNLNDSX5/Data/Intensities/BaseCalls/"
-  readstructure: "y148,i8y9,i8n*,y148"
+  basecall_dir: "/data/gpfs-1/users/altwassr_c/scratch/data/P3184/230526_A00643_0718_BH3C22DSX7/Data/Intensities/BaseCalls/"
+  readstructure: "y151,i8y9,i8n*,y151"
   runbarcode: "2023"
 
 picard:
@@ -27,7 +27,7 @@ fgbio:
   callconsensus: "-M 3"
   fextra: ""
   fminq: 5
-  readstructure: "8B 8B 148T 9M 148T"
+  readstructure: "8B 8B 151T 9M 151T"
 
 #### ABSOLUTE PATHS ############
 paths:
@@ -43,12 +43,11 @@ mpileup:
   MAPQ: 10 # -q in pileup
 annovar:
   build: hg38
-    --until mpileup \
-  path_to_humandb: //fast/groups/ag_damm/work/annovar/humandb/fast/groups/ag_damm/work/annovar/humandb/
+  path_to_humandb: /fast/groups/ag_damm/work/annovar/humandb/
   annofiles:
     - refGene
     - cytoBand
-    - clinvar_20200316
+    - clinvar_20221231
     - dbnsfp35c
     - gnomad30_genome
     - avsnp144

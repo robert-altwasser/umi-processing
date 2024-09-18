@@ -9,10 +9,10 @@ general:
 reference:  
   genome: "/fast/users/altwassr_c/work/refs/GRCh38.u2af1_fix.v1.2020_04_01.fa"
   known_indels: "/fast/users/altwassr_c/work/umi-data-processing/umi-preprocessing/refs/dbsnp.vcf.gz"
-  region_file: "/fast/users/altwassr_c/work/refs/merged_probe_file_DKMS_v5-hrd_1X_1p5X_hg38.bed"
+  region_file: "/fast/users/altwassr_c/work/refs/all_target_segments_covered_by_probes_Charite_BeLOVE.bed"
 
 illumina:
-  basecall_dir: "/data/gpfs-1/users/altwassr_c/scratch/data/P1803/230120_A00643_0633_BHLNLNDSX5/Data/Intensities/BaseCalls/"
+  basecall_dir: "/data/gpfs-1/users/altwassr_c/scratch/data/P3353/230908_A00643_0763_BH7WH7DSX5/Data/Intensities/BaseCalls/"
   readstructure: "y148,i8y9,i8n*,y148"
   runbarcode: "2023"
 
@@ -43,8 +43,7 @@ mpileup:
   MAPQ: 10 # -q in pileup
 annovar:
   build: hg38
-    --until mpileup \
-  path_to_humandb: //fast/groups/ag_damm/work/annovar/humandb/fast/groups/ag_damm/work/annovar/humandb/
+  path_to_humandb: /fast/groups/ag_damm/work/annovar/humandb/
   annofiles:
     - refGene
     - cytoBand
