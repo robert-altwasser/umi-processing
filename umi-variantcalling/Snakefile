@@ -1,3 +1,15 @@
+# ==============================================================================
+# Snakemake workflow: Preprocessing of Illumina sequencing data 
+#                     containing unique molecular identifiers (UMIs)
+#
+# Author: Robert Altwasser (robert.altwasser@charite.de)
+#         Raphael Hablesreiter (raphael.hablesreiter@charite.de)
+#
+# Description:
+# Snakemake implementation of IDT analysis guidlines "Demultiplexing Illumina 
+# sequencing data containing unique molecular identifiers (UMIs)".
+# ==============================================================================
+
 import os
 import re
 import yaml
